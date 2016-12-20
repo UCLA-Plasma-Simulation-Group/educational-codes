@@ -66,9 +66,9 @@ We get a similar result for ions, but without the pressure term. We then substit
 \]
 Since $\nabla \cdot \tilde{\mb{D}} = \nabla \cdot (\epsilon \tilde{\mb{E}}) = \epsilon \mb{k} \cdot \tilde{\mb{E}}$, the term in parenthesis is then our dielectric constant. Setting this equal to zero gives the dispersion relation,
 \[
-	\omega^2=\omega_{pe}^2+\frac{\gamma T_e}{m_e} k^2,
+	\omega^2=\omega_{pe}^2+\gamma \bar{v}_e^2 k^2,
 \]
-where we have neglected the ion contribution because it is small compared to the electron contribution for Langmuir waves. So we see that the pressure term provides an additional term to the dispersion relation (the stationary solution is just $\omega^2=\omega_{pe}^2$).
+where $\bar{v}_e^2=T_e/m_e$, and we have neglected the ion contribution because it is small compared to the electron contribution for Langmuir waves. So we see that the pressure term provides an additional term to the dispersion relation (the stationary solution is just $\omega^2=\omega_{pe}^2$).
 
 \begin{figure}[H]
 \centering
@@ -81,9 +81,9 @@ where we have neglected the ion contribution because it is small compared to the
 \end{figure}
 
 \section*{Parameters}
-In the dispersion relation we can substitute in the electron thermal velocity $\bar{v}_e^2=T_e/m_e$. This is now the only free parameter in the dispersion relation to vary. We can also vary the number of particles per cell to test grid stability and to see how well we conserve energy.
+The electron thermal velocity, $\bar{v}_e^2=T_e/m_e$, is now the only free parameter in the dispersion relation to vary. We can also vary the number of particles per cell to test grid stability and to see how well we conserve energy.
 
 \section*{References}
-[1] N. A. Krall and A. W. Trivelpiece, “Principle of Plasma Physics,”, pp. 143-147 McGraw Hill, New York, 1973.
+[1] N. A. Krall and A. W. Trivelpiece, ``Principle of Plasma Physics,'' pp. 143-147, McGraw Hill, New York, 1973.
 
 \end{document}
