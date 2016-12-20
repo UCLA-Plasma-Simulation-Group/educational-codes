@@ -13,6 +13,7 @@
 \usepackage{enumitem}
 \usepackage{amsmath}
 \usepackage{listings}
+\usepackage{amssymb}
 \usepackage[margin=0.8in]{geometry}
 
 \newcommand{\s}{\hspace{5pt}}
@@ -93,7 +94,45 @@ Consider a stationary background of ions with the electron plasma moving with a 
 1 = \omega_{pe}^2 \left(\frac{m_e/m_i}{\omega^2} + \frac{1}{(\omega - \mb{k} \cdot \mb{v}_0)^2}\right).
 \end{align*}
 
+This quartic equation can be cast into a simpler form by defining $x \equiv \omega/\omega_{pe}$ and $\alpha \equiv \mb{k} \cdot \mb{v}_0/\omega_{pe}$ to get
 
+\begin{align*}
+1 = \frac{m_e/m_i}{x^2} + \frac{1}{(x-\alpha)^2}.
+\end{align*}
+
+\subsection*{Parameters}
+
+From the above equation, it is seen that the only free parameter in the problem is $\alpha = \mb{k} \cdot \mb{v}_0/\omega_{pe}$, or the ratio $\mb{k} \cdot \mb{v}_0/n_0$.
+
+\subsection*{Solution to the dispersion relation}
+
+If we define the right-hand side of the equation as
+
+\begin{align*}
+f(x) = \frac{m_e/m_i}{x^2} + \frac{1}{(x-\alpha)^2},
+\end{align*}
+
+then we seek for solutions to $f(x) = 1$. In Fig.~\ref{fig:Buneman}, we see that two of the roots for $\omega$ are always real, and the other two roots may be real or complex depending on the value of $\alpha$. To find when the $\omega$ roots begin to be complex, we seek to minimize $f(x)$. Solving $f'(x)=0$ yields $x_{min} \approx 0.75\alpha$. Then setting $f(x_{min}) \geq 1$ means that to have complex roots we need $\alpha \lesssim 1.12$. This is shown in the red curve in Fig.~\ref{fig:Buneman}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.5\textwidth]{two_stream_disp}
+	\caption{\label{fig:Buneman} Plot from the dispersion relation for various values of $\alpha$. Modes occur where $f(x)=1$.}
+\end{figure}
+
+%To find the growth rate, we manipulate the dispersion relation to obtain
+
+%\begin{align*}
+%x^2(x-\alpha)^2-\frac{m_e}{m_i}(x-\alpha)^2-x^2 = 0.
+%\end{align*}
+
+If we let $\omega = \omega_R+i \omega_I$, then solving for $\omega_I$ gives the growth rate. The real and imaginary parts of the frequency are shown in Fig.~\ref{fig:omega_roots}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.5\textwidth]{omega_roots}
+	\caption{\label{fig:omega_roots} Real and imaginary parts of the frequency as a function of $\alpha$. The most unstable mode is observed for $\alpha \approx 1$.}
+\end{figure}
 
 \section*{Weak Cold Beam Instability}
 Consider a stationary electron-ion plasma with a fast, weak beam of electrons passing through it. Here ``fast'' implies $v_b \gg \bar{v}_e, \bar{v}_i$, ``weak'' implies $n_b/n_0 \ll 1$, and ``cold'' implies $v_b \gg \bar{v}_b$. Since $\omega_{pi} \ll \omega_{pe}$, we neglect the ion contribution to the dispersion relation and obtain
