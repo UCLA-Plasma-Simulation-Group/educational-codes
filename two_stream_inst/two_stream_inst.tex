@@ -102,7 +102,7 @@ This quartic equation can be cast into a simpler form by defining $x \equiv \ome
 
 \subsection*{Parameters}
 
-From the above equation, it is seen that the only free parameter in the problem is $\alpha = \mb{k} \cdot \mb{v}_0/\omega_{pe}$, or the ratio $\mb{k} \cdot \mb{v}_0/n_0$.
+From the above equation, it is seen that the two free parameters in the problem are the ratio of electron to ion mass, $m_e/m_i$, and $\alpha = \mb{k} \cdot \mb{v}_0/\omega_{pe}$, or simply the ratio $\mb{k} \cdot \mb{v}_0/n_0$.
 
 \subsection*{Solution to the dispersion relation}
 
@@ -112,7 +112,7 @@ If we define the right-hand side of the equation as
 f(x) = \frac{m_e/m_i}{x^2} + \frac{1}{(x-\alpha)^2},
 \end{align*}
 
-then we seek for solutions to $f(x) = 1$. In Fig.~\ref{fig:Buneman}, we see that two of the roots for $\omega$ are always real, and the other two roots may be real or complex depending on the value of $\alpha$. To find when the $\omega$ roots begin to be complex, we seek to minimize $f(x)$. Solving $f'(x)=0$ yields $x_{min} \approx 0.75\alpha$. Then setting $f(x_{min}) \geq 1$ means that to have complex roots we need $\alpha \lesssim 1.12$. This is shown in the red curve in Fig.~\ref{fig:Buneman}.
+then we seek for solutions to $f(x) = 1$. In Fig.~\ref{fig:Buneman}, we see that two of the roots for $\omega$ are always real, and the other two roots may be real or complex depending on the value of $\alpha$. To find when the $\omega$ roots begin to be complex, we seek to minimize $f(x)$. Setting $\frac{m_e}{m_i} \approx \frac{1}{1836}$ and solving $f'(x)=0$ yields $x_{min} \approx 0.75\alpha$. Then setting $f(x_{min}) \geq 1$ means that to have complex roots we need $\alpha \lesssim 1.12$. This is shown in the red curve in Fig.~\ref{fig:Buneman}.
 
 \begin{figure}
 	\centering
@@ -140,6 +140,20 @@ Consider a stationary electron-ion plasma with a fast, weak beam of electrons pa
 \begin{align*}
 1 = \frac{\omega_{pe}^2}{\omega^2} + \frac{\omega_{pb}^2}{(\omega-\mb{k} \cdot \mb{v}_b)^2}.
 \end{align*}
+
+Defining $x \equiv \omega/\omega_{pb}$ and $\alpha \equiv \mb{k} \cdot \mb{v}_b/\omega_{pb}$, along with recognizing that $\omega_{pe}^2/\omega_{pb}^2 = n_0/n_b$, we then get that
+
+\begin{align*}
+1 = \frac{n_0/n_b}{x^2} + \frac{1}{(x-\alpha)^2}.
+\end{align*}
+
+\subsection*{Parameters}
+
+From the above equation, it is seen that the two free parameters in the problem are the ratio of background to beam density, $n_0/n_b$, and $\alpha = \mb{k} \cdot \mb{v}_b/\omega_{pb}$, or simply the ratio $\mb{k} \cdot \mb{v}_b/n_b$.
+
+\subsection*{Solution to the dispersion relation}
+
+Analysis proceeds exactly as in the discussion for the Farley-Buneman instability, but now $n_0/n_b \gg 1$. This results in complex values of $\omega$ for much larger allowable values of $\alpha$ than before. For example, with $n_0/n_b = 2000$, $\omega$ is complex for $\alpha \lesssim 50$.
 
 \section*{References}
 [1] N. A. Krall and A. W. Trivelpiece, ``Principle of Plasma Physics,'' McGraw Hill, New York, 1973.
