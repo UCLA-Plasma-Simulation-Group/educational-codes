@@ -1,0 +1,157 @@
+&pinput2
+IDRUN = 1
+INDX =   8, INDY =   8, NPX =  256, NPY = 256
+NPXB =   0, NPYB =   0, INORDER = 2, 
+POPT = 2, DOPT = 2, DJOPT = 2
+NTW = 1, NTP = 0, NTD = 10, NTA = 0, NTV = 0, NTS = 0
+NUSTRT = 1, NTR = 0, PSOLVE = 1, RELATIVITY = 0
+TEND =  20.0, DT =   0.200, CI = 0.1
+QME =  -1.000, VTX =   1.000, VTY =   1.000, VTZ =   1.000
+VX0 =   0.000, VY0 =   0.000, VZ0 =   0.000
+VDX =   0.000, VDY =   0.000, VDZ =   0.000
+VTDX =   0.000, VTDY =   0.000, VTDZ =   0.000
+AX =    0.866667, AY =   0.866667
+NSRAND = 0, NDPROF = 0
+AMPDX = 0.0, SCALEDX = 0.0, SHIFTDX = 0.0
+AMPDY = 0.0, SCALEDY = 0.0, SHIFTDY = 0.0
+MOVION = 0, NPXI =  0, NPYI =  0
+NPXBI =  256, NPYBI = 256
+QMI =  1.000, RMASS = 100.0
+RTEMPXI =   1.000, RTEMPYI =   1.000, RTEMPZI =   1.000
+VXI0 =   0.000, VYI0 =   0.000, VZI0 =   0.000
+VDXI =   0.000, VDYI =   0.000, VDZI =   0.000
+RTEMPDXI =   1.000, RTEMPDYI =   1.000, RTEMPDZI =   1.000
+NSRANDI = 0, NDPROFI = 0
+AMPDXI = 0.0, SCALEDXI = 0.0, SHIFTDXI = 0.0
+AMPDYI = 0.0, SCALEDYI = 0.0, SHIFTDYI = 0.0
+SORTIME = 100, SORTIMI = 250
+NPLOT = 0, IDPAL = 1, NDSTYLE = 1, SNTASKS=1,
+ntw=1,ntp=0
+/
+&pinput2_jf
+driver_select = 1
+amp=0.1,wavemode=4,wavew=1.0099
+rise = 15.,flat = 22.,fall=1.,yrise_fall=200.
+timerise=0.,timeflat=12.2,timefall=0.,
+center1 = 200, center2 = 400, phase_offset = 4
+bow = -3., bow_power = 0.5
+superGauss = 4
+
+turn_off_self_con = 0
+
+ampere_k0 = 0
+
+dump_start = -10.
+dump_end = 20000.
+
+ntfield=2
+nt_write_field_ene_in_driver_region = 0
+
+ntlines = 1
+linepos(1) = 1
+linepos(2) = -1
+linepos(3) = -1
+linepos(4) = -1
+linepos(5) = -1
+
+nt_phase_vx_vy = 0
+
+nt_vx_vy_speed = 0
+nvx_vy_speed = 4
+vx_vy_xrange(1:2) = 0.,50.
+vx_vy_yrange(1:2) = 25.,50.
+vx_vy_speed = 1.
+
+phase_keep_only_tracked = 0
+fvxmax=12., fvymax=7.
+nphbx=70,nphby=70
+nphxx=0,nphyx=0
+nphxy=0,nphyy=0
+
+ntphsl_x = 0,phsl_x_thick=2
+phsl_x_pos(1) = 257
+phsl_x_pos(2) = 325
+phsl_x_pos(3) = 401
+phsl_x_pos(4) = -1
+phsl_x_pos(5) = -1
+
+ntphsl_y = 0,phsl_y_thick=2
+phsl_y_pos(1) = 100
+phsl_y_pos(2) = 500
+phsl_y_pos(3) = 1000
+phsl_y_pos(4) = 1500
+phsl_y_pos(5) = -1
+
+ntj = 1
+ntvdotE = 0
+
+ntraw = 0
+raw_fraction = .1
+raw_dump_tagged = 0
+raw_range(1,1:2) = 0.,50.
+raw_range(2,1:2) = 0.,10.
+raw_range(3,1:2) = -30,30.
+raw_range(4,1:2) = -30.,30.
+raw_cycle_x_move = 0.
+
+nttrack = 0
+nt_dump_track = 10
+track_no_h5 = 1
+
+ntESPoynt = 0
+nt_dEdt = 0
+nt_kE = 0
+nt_write_grad_phi = 0
+ntESPoynt_int = 0
+nt_div_ESPoynt_int = 0
+nt_div_ESPoynt = 0
+ntfield_ene_int = 0
+nt_write_Py_vs_y = 0
+nt_write_div_P_vs_y = 0
+nt_write_jE_sumover_x = 0
+nt_write_kE_sumover_x = 0
+nt_write_Py_sumover_x = 0
+nt_write_U_sumover_x = 0
+nt_write_Ux_sumover_x = 0
+
+nt_write_ene_int = 0
+int_pos(1) = 10
+int_pos(2) = 36
+int_pos(3) = 40
+int_pos(4) = 50
+
+keep_init_vel = 0
+
+nt_through_wave = 10
+final_y = 30.
+init_range(1,1:2) = 0., 1000.
+init_range(2,1:2) = 10., 20.
+init_range(3,1:2) = -100., 100.
+init_range(4,1:2) = 0., 1000.
+nt_write_jE_onlytracked_sumover_x = 1
+
+initEneRange = 100
+finalEneRange = 100
+nEneBin_init = 300
+nEneBin_final = 50
+
+initVxLow = -6.
+initVxHigh = 6.
+finalVxLow = -7.
+finalVxHigh = 7.
+nVxBin_init = 20
+nVxBin_final = 30
+
+initVyLow = -10.
+initVyHigh = 10.
+finalVyLow = -9.
+finalVyHigh = 9.
+nVyBin_init = 40
+nVyBin_final = 50
+
+nvdotE_part = 0
+nvdotE_int = 0
+nvdotE_follow_part = 0
+
+/
+

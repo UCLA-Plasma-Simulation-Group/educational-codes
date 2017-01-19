@@ -1,0 +1,20 @@
+#gcc -O -c mApplefft2d.c mApplefft2df77.c MacMPf77.c
+#gcc -O -c -I /Developer/Headers/FlatCarbon MacMP.c
+#gcc -O -c Applefft2df77.c Applefft2d.c Applefst2d.c timerw.c timerwf77.c
+#xlf -O -qextname -o mfft2test.out mfft2test.f \
+#xlf -O -qautodbl=dbl4 -qextname -o mfft2test.out mfft2test.f \
+#   mApplefft2df77.o mApplefft2d.o MacMPf77.o MacMP.o \
+#   Applefft2df77.o Applefft2d.o Applefst2d.o timerwf77.o timerw.o \
+#   /System/Library/Frameworks/Carbon.framework/Carbon \
+#   /System/Library/Frameworks/Accelerate.framework/Accelerate
+
+gcc -O -c mApplefft2d.c mApplefft2df77.c MacMPf77.c
+gcc -O -c -I /Developer/Headers/FlatCarbon MacMP.c
+gcc -O -c Applefft2d.c Applefst2d.c Applefst2df77.c timerw.c timerwf77.c
+#xlf -O -qextname -o mfft2cstest.out mfft2cstest.f \
+xlf -O -qautodbl=dbl4 -qextname -o mfft2cstest.out mfft2cstest.f \
+    mApplefft2df77.o mApplefft2d.o MacMPf77.o MacMP.o \
+    Applefst2df77.o Applefft2d.o Applefst2d.o timerwf77.o timerw.o \
+    /System/Library/Frameworks/Carbon.framework/Carbon \
+    /System/Library/Frameworks/Accelerate.framework/Accelerate
+

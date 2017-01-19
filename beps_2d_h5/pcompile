@@ -1,0 +1,2 @@
+mpif77 -O3 -qautodbl=dbl4 -qarch=g5 pfft2cstest.f -o pfft2cstest.out
+

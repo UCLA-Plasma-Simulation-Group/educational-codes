@@ -1,0 +1,23 @@
+xlf90 -O3 -qautodbl=dbl4 -qarch=g5  -c p2mod_jf.f
+xlf90 -O3 -qautodbl=dbl4 -qarch=g5 -c pinit2mod_jf.f
+xlf90 -O3 -qautodbl=dbl4 -qarch=g5 -c diag_jf.f
+xlf90 -O3 -qautodbl=dbl4 -qarch=g5 -c ampere_jf.f
+xlf90 -O3 -qautodbl=dbl4 -qarch=g5 -c ext_driver_jf.f
+xlf90 -O3 -qautodbl=dbl4 -qarch=g5 -s -c new_pbeps2_jf.f
+xlf90 -O3 -qautodbl=dbl4 -qarch=g5 -qfixed  -c pinit2lib.f
+xlf90 -O3 -qautodbl=dbl4 -qarch=g5 -qfixed -c prbpush2lib.f
+xlf90 -O3 -qautodbl=dbl4 -qarch=g5 -qfixed -c ppush2lib.f
+xlf90 -O3 -qautodbl=dbl4 -qarch=g5 -qfixed  -c pfft2lib.f
+xlf90 -O3 -qautodbl=dbl4 -qarch=g5 -qfixed -c pfield2lib.f
+xlf90 -O3 -qautodbl=dbl4 -qarch=g5 -qfixed -c pdiag2lib.f
+xlf -O3 -qautodbl=dbl4 -qarch=g5 -qfixed  -c p2lib.f
+xlf90 -O3 -qautodbl=dbl4 -qarch=g5 -qfixed  -c p0lib.f
+gcc -O -c MacMPIxlf.c
+gcc -O -c -I /Developer/Headers/FlatCarbon MacMPI_S.c
+xlf -O3 -qautodbl=dbl4 -qarch=g5 -qfixed -c nullMP.f
+xlf -O3 -qautodbl=dbl4 -qarch=g5 -qfixed -c nullpgks2.f
+xlf -O3 -qautodbl=dbl4 -qarch=g5 -qfixed -c nullpgks1.f
+xlf90 -O3 -qautodbl=dbl4 -qarch=g5  -o new_pbeps2_jf.out \
+new_pbeps2_jf.o globals.o pinit2mod.o prbpush2mod.o ppush2mod.o pfft2mod.o pfield2mod.o pdiag2mod.o p2mod.o p0mod.o mp0mod.o pinit2lib.o prbpush2lib.o ppush2lib.o pfft2lib.o pfield2lib.o pdiag2lib.o p2lib.o p0lib.o diag_jf.o pinit2mod_jf.o ampere_jf.o ext_driver_jf.o p2mod_jf.o MacMPIxlf.o MacMPI_S.o nullMP.o nullpgks2.o nullpgks1.o /System/Library/Frameworks/Carbon.framework/Carbon
+/usr/bin/ld: Undefined symbols:
+_pmove_jf
