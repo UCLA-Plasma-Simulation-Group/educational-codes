@@ -1,0 +1,23 @@
+Fix setup function to change particle tags to -1 and their index in track_set
+
+
+These next three are from the first pmove call
+missing_particles_list
+
+This one will go through list of missing particles and then check to see if each particle
+is a tracked particle.  If so, do what old function does.  This will eliminate extra search.
+
+Inside PMOVES2_track, change the new_present_particles calls to ifs to check if it's a tracked
+particle.  If so, call new new_present_particles function to update correct info.
+
+Inside PMOVES2_track, for update_index check if tracked and then update index quickly
+
+
+So after add_tag call, the new_present_particles call's functionality will be replaced by the setup.
+
+add_track_data will be fine
+
+I think write tracks will be okay too
+
+update_indexes in sortp should be changed to run through all particles, check if tracked, and
+if so,then update index

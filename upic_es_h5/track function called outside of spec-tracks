@@ -1,0 +1,44 @@
+These functions are called outside of os-spec-tracks.f90
+
+new_present_particles
+write_tracks
+create_file
+setup   ---  called in os-spec-diagnostics.f90
+cleanup ---  called in os-spec-diagnostics.f90
+update_indexes
+restart_write  --- called in os-spec-diagnostics.f90
+
+
+
+put new_present_particles after particle manager call or after when ever 
+	particles are passed from processor to processor
+	
+use the following code for the create and write_tracks functions
+it should go in diagnostic calls, not quite sure now
+  if ( test_if_report( n, ndump, spec%diag%ndump_fac_tracks )) then
+     if ( n == 0 ) then 
+        ! create the diagnostics file 
+        call create_file( spec%diag%tracks, spec%name, ndump, dt, &
+                          x_bnd(g_space), periodic(no_co), if_move( g_space ) )
+     else 
+        ! write the data
+        call write_tracks( spec%diag%tracks, no_co )
+     endif
+  endif
+
+call setup at start up of program
+
+call cleanup at end
+
+don't quite get update_indexes.  maybe call after particle sort?
+
+don't worry about restart_write for now
+
+
+
+
+ihole has list of all particles leaving a node
+in pmoves2 need to call new_present_particle_single or new_present_particle_single
+	depending on how you do it. Probably best to make a new array that has the index
+	of all the particles that are new and then use bounds, but have to figure it out
+

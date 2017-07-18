@@ -1,0 +1,6 @@
+#gcc -O -c -I /Developer/Headers/FlatCarbon MacMP.c
+#gcc -O -c MacMPxlf.c
+mpif77 -O3 -qautodbl=dbl4 -qarch=g5 mpfft2cstest.f \
+MacMPxlf.o MacMP.o /System/Library/Frameworks/Carbon.framework/Carbon \
+-o mpfft2cstest.out
+

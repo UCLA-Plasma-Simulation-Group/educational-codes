@@ -1,0 +1,52 @@
+simulation
+{
+	subplots = 2,
+	nstart = 0,
+	ndump = 20,
+	nend = 480,
+
+}
+
+
+! #1 subplot
+data
+{
+        folders = "DIAG/Ex",
+        title = "ES electric fields",
+        logscale = FALSE,
+        lineout = False,
+         min_max_overwrite = True,
+         maximum = .5, ! only needed if overwrite is true
+         minimum = -.5, ! only needed if overwrite is true
+         ! threshold = 2.0e-3, ! only needed if overwrite and log plot are true
+         colormap = "spectral",
+ }
+data
+{
+	folders = "DIAG/Ex",
+	title = "potential",
+	logscale = False, ! This will disable lineout
+	lineout = False,
+	min_max_overwrite = False,
+	maximum = 0.5, ! only needed if overwrite is true
+	minimum = -0.5, ! only needed if overwrite is true
+	!threshold = 1.0e-3,  only needed if overwrite and log plot are true
+	colormap = "spectral",
+}
+
+
+
+
+! #2 subplot
+data
+{
+	folders = "DIAG/Vx_x",
+	title = "electron phase space",
+	logscale = True,
+	lineout = False,
+	min_max_overwrite = True,
+	maximum = 3.0e1, ! only needed if overwrite is true
+	minimum = 0, ! only needed if overwrite is true
+	threshold = 1.0e-5, ! only needed if overwrite and log plot are true
+	colormap = "hsv",
+}
