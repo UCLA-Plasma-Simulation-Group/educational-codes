@@ -389,8 +389,10 @@ def gen_path(rundir, plot_or):
         PATH += '/e1.h5'
     elif (plot_or==2):
         PATH += '/e2.h5'
-    else:
+    elif (plot_or==3):
         PATH += '/e3.h5'
+    else:
+        PATH += '/ions.h5'
     return PATH
 
 def plot_xt(rundir, TITLE, b0_mag, plot_or, show_theory):
@@ -444,18 +446,22 @@ def plot_log_xt(PATH, TITLE):
     # plt.legend(loc=0)
     plt.show()
 
-def plot_wk(rundir, TITLE, b0_mag, plot_or, show_theory):
+def plot_wk(rundir, TITLE, b0_mag, plot_or, show_theory, background=0.0, wlim=3,klim=5):
     # initialize values
     PATH = gen_path(rundir, plot_or)
     hdf5_data = read_hdf(PATH)
+    
+    if (background!=0.0):
+        hdf5_data.data = hdf5_data.data-background
     hdf5_data = FFT_hdf5(hdf5_data)   # FFT the data (x-t -> w-k)
 
     w_p = 1.0                         # plamsa frequency
     w_c = b0_mag                      # cyclotron freq
     w_0 = 1.0
 
-    klim = 5
-    wlim = 3
+
+#    klim = 5
+#    wlim = 3
     N = 100
     dx = float(klim)/N
     kvals = np.arange(0, klim+.01, dx)
@@ -479,7 +485,10 @@ def plot_wk(rundir, TITLE, b0_mag, plot_or, show_theory):
     # create figure
     plt.figure()
     plotme(hdf5_data)
-    plt.title(TITLE + ' w-k space' + ' e' + str(plot_or))
+    if (plot_or !=4):
+        plt.title(TITLE + ' w-k space' + ' e' + str(plot_or))
+    else:
+        plt.title(TITLE + ' w-k space' + ' ion density' )
     plt.xlabel('k  [$\omega_{pe}$/c]')
     plt.ylabel('$\omega$  [$\omega_{pe}$]')
     plt.xlim(0,klim)
