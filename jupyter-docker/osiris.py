@@ -8,11 +8,10 @@ import matplotlib.pyplot as plt
 # from os import listdir
 from ipywidgets import interact
 # %matplotlib inline
-# ROMAN'S LIBRARIES
 from h5_utilities import *
 from analysis import *
 
-def runosiris(rundir='',inputfile='osiris-input.txt'):
+def runosiris(rundir='',inputfile='osiris-input.txt',iaw=False):
 
     def execute(cmd):
         popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
@@ -22,18 +21,25 @@ def runosiris(rundir='',inputfile='osiris-input.txt'):
         return_code = popen.wait()
         if return_code:
             raise subprocess.CalledProcessError(return_code, cmd)
-    
+
     def combine_h5(ex):
         in_file = workdir + '/MS/FLD/' + ex + '/'
         out_file = workdir + '/' + ex + '.h5'
         for path in execute(["python", "combine_h5_util_1d.py", in_file, out_file]):
             IPython.display.clear_output(wait=True)
-            print(path, end='')    
+            print(path, end='')
+
+    def combine_h5_iaw():
+        in_file = workdir + '/MS/DENSITY/ions/charge/'
+        out_file = workdir + '/ions.h5'
+        for path in execute(["python", "combine_h5_util_1d.py", in_file, out_file]):
+            IPython.display.clear_output(wait=True)
+            print(path, end='')
 
     workdir = os.getcwd()
     workdir += '/' + rundir
     print(workdir)
-    
+
     # run osiris-1D.e executable
     if(not os.path.isdir(workdir)):
        os.mkdir(workdir)
@@ -43,11 +49,13 @@ def runosiris(rundir='',inputfile='osiris-input.txt'):
     for path in execute(["./osiris-1D.e","-w",workdir,"osiris-input.txt"]):
         IPython.display.clear_output(wait=True)
         print(path, end='')
-    
-    # run combine_h5_util_1d.py script for e1/, e2/, e3/
+
+    # run combine_h5_util_1d.py script for e1/, e2/, e3/ (and iaw)
     combine_h5('e1')
     combine_h5('e2')
     combine_h5('e3')
+    if (iaw==True):
+        combine_h5_iaw()
 
     return
 
@@ -446,11 +454,13 @@ def plot_log_xt(PATH, TITLE):
     # plt.legend(loc=0)
     plt.show()
 
-def plot_wk(rundir, TITLE, b0_mag, plot_or, show_theory, background=0.0, wlim=3,klim=5):
+def plot_wk(rundir, TITLE, b0_mag, plot_or, show_theory=False, background=0.0, wlim=3, klim=5, iaw=False):
     # initialize values
-    PATH = gen_path(rundir, plot_or)
+    if (iaw==True):
+        PATH = os.getcwd() + '/' + rundir + '/ions.h5'
+    else:
+        PATH = gen_path(rundir, plot_or)
     hdf5_data = read_hdf(PATH)
-    
     if (background!=0.0):
         hdf5_data.data = hdf5_data.data-background
     hdf5_data = FFT_hdf5(hdf5_data)   # FFT the data (x-t -> w-k)
@@ -459,9 +469,6 @@ def plot_wk(rundir, TITLE, b0_mag, plot_or, show_theory, background=0.0, wlim=3,
     w_c = b0_mag                      # cyclotron freq
     w_0 = 1.0
 
-
-#    klim = 5
-#    wlim = 3
     N = 100
     dx = float(klim)/N
     kvals = np.arange(0, klim+.01, dx)
@@ -496,8 +503,8 @@ def plot_wk(rundir, TITLE, b0_mag, plot_or, show_theory, background=0.0, wlim=3,
     if (show_theory==True):
         # for i in range(1,10):
         #     plt.plot(kvals, i*w_cvals, 'w--', label='')
-        plt.plot(kvals, wR, 'b--', label='$\omega$$_R$, right-handed cutoff')
-        plt.plot(kvals, wL, 'r--', label='$\omega$$_L$, left-handed cutoff')
+        plt.plot(kvals, wR, 'b--', label='$\omega$$_R$, right-handed cutoff') #R-cutoff
+        plt.plot(kvals, wL, 'r--', label='$\omega$$_L$, left-handed cutoff')  #L-cutoff
         plt.plot(kvals, wvals,'b', label='')
         plt.legend(loc=0)
     plt.show()
