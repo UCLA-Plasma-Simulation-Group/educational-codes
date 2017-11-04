@@ -10,6 +10,7 @@ if(argc < 3):
 	print('Usage: python 1d_combine.py DIRNAME OUTNAME')
 	sys.exit()
 
+#def combine(dirname, outfilename):
 dirname=sys.argv[1]
 outfilename = sys.argv[2]
 

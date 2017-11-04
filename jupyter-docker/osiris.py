@@ -11,7 +11,8 @@ from ipywidgets import interact
 from h5_utilities import *
 from analysis import *
 
-def runosiris(rundir='',inputfile='osiris-input.txt',iaw=False):
+#def runosiris(rundir='',inputfile='osiris-input.txt',iaw=False):
+def runosiris(rundir='',inputfile='osiris-input.txt'):
 
     def execute(cmd):
         popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
@@ -25,14 +26,16 @@ def runosiris(rundir='',inputfile='osiris-input.txt',iaw=False):
     def combine_h5(ex):
         in_file = workdir + '/MS/FLD/' + ex + '/'
         out_file = workdir + '/' + ex + '.h5'
-        for path in execute(["python", "combine_h5_util_1d.py", in_file, out_file]):
+        for path in execute(["python", "/usr/local/osiris/combine_h5_util_1d.py", in_file, out_file]):
+#        for path in execute(["python", "combine_h5_util_1d.py", in_file, out_file]):
             IPython.display.clear_output(wait=True)
             print(path, end='')
 
     def combine_h5_iaw():
         in_file = workdir + '/MS/DENSITY/ions/charge/'
         out_file = workdir + '/ions.h5'
-        for path in execute(["python", "combine_h5_util_1d.py", in_file, out_file]):
+        for path in execute(["python", "/usr/local/osiris/combine_h5_util_1d.py", in_file, out_file]):
+#        for path in execute(["python", "combine_h5_util_1d.py", in_file, out_file]):
             IPython.display.clear_output(wait=True)
             print(path, end='')
 
@@ -44,9 +47,10 @@ def runosiris(rundir='',inputfile='osiris-input.txt',iaw=False):
     if(not os.path.isdir(workdir)):
        os.mkdir(workdir)
     if(rundir != ''):
-        shutil.copyfile('osiris-1D.e',workdir+'/osiris-1D.e')
+#        shutil.copyfile('osiris-1D.e',workdir+'/osiris-1D.e')
         shutil.copyfile(inputfile,workdir+'/osiris-input.txt')
-    for path in execute(["./osiris-1D.e","-w",workdir,"osiris-input.txt"]):
+#    for path in execute(["./osiris-1D.e","-w",workdir,"osiris-input.txt"]):
+    for path in execute(["osiris-1D.e","-w",workdir,"osiris-input.txt"]):
         IPython.display.clear_output(wait=True)
         print(path, end='')
 
@@ -54,7 +58,8 @@ def runosiris(rundir='',inputfile='osiris-input.txt',iaw=False):
     combine_h5('e1')
     combine_h5('e2')
     combine_h5('e3')
-    if (iaw==True):
+    #if (iaw==True):
+    if (os.path.isdir(workdir+'/MS/DENSITY/ions/charge')):
         combine_h5_iaw()
 
     return
@@ -68,7 +73,7 @@ def field(rundir='',dataset='e1',time=0,
     workdir = os.path.join(workdir, rundir)
 
     odir = os.path.join(workdir, 'MS', 'FLD', dataset)
-    files = os.listdir(odir)
+    files = sorted(os.listdir(odir))
 
     i = 0
     for j in range(len(files)):
@@ -110,7 +115,7 @@ def phasespace(rundir='',dataset='p1x1',species='electrons',time=0,
     workdir = os.path.join(workdir, rundir)
 
     odir = os.path.join(workdir, 'MS', 'PHA', dataset, species)
-    files = os.listdir(odir)
+    files = sorted(os.listdir(odir))
 
     i = 0
     for j in range(len(files)):
@@ -167,7 +172,7 @@ def lineinteract(rundir='',dataset='e1',
     workdir = os.path.join(workdir, rundir)
 
     odir = os.path.join(workdir, 'MS', 'FLD', dataset)
-    files = os.listdir(odir)
+    files = sorted(os.listdir(odir))
 
     f0 = h5py.File(os.path.join(odir,files[0]), 'r')
     xaxismin = f0['AXIS']['AXIS1'][0]
@@ -204,7 +209,7 @@ def phaseinteract(rundir='',dataset='p1x1',species='electrons',
     workdir = os.path.join(workdir, rundir)
 
     odir = os.path.join(workdir, 'MS', 'PHA', dataset, species)
-    files = os.listdir(odir)
+    files = sorted(os.listdir(odir))
 
     data = []
     for i in range(len(files)):
@@ -238,7 +243,7 @@ def xtplot(rundir='',dataset='e3',xlim=[-1,-1],ylim=[-1,-1],zlim=[-1,-1],
     workdir = os.path.join(workdir, rundir)
 
     odir = os.path.join(workdir, 'MS', 'FLD', dataset)
-    files = os.listdir(odir)
+    files = sorted(os.listdir(odir))
 
     fhere = h5py.File(os.path.join(odir, files[0]), 'r')
     xaxismin = fhere['AXIS']['AXIS1'][0]
@@ -302,7 +307,7 @@ def wkplot(rundir='',dataset='e3',klim=[-1,-1],wlim=[-1,-1],zlim=[-1,-1],
     workdir = os.path.join(workdir, rundir)
 
     odir = os.path.join(workdir, 'MS', 'FLD', dataset)
-    files = os.listdir(odir)
+    files = sorted(os.listdir(odir))
 
     fhere = h5py.File(os.path.join(odir, files[0]), 'r')
     xaxismin = fhere['AXIS']['AXIS1'][0]
@@ -403,7 +408,7 @@ def gen_path(rundir, plot_or):
         PATH += '/ions.h5'
     return PATH
 
-def plot_xt(rundir, TITLE, b0_mag, plot_or, show_theory):
+def plot_xt(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False):
     # initialize values
     PATH = gen_path(rundir, plot_or)
     hdf5_data = read_hdf(PATH)
@@ -454,7 +459,9 @@ def plot_log_xt(PATH, TITLE):
     # plt.legend(loc=0)
     plt.show()
 
-def plot_wk(rundir, TITLE, b0_mag, plot_or, show_theory=False, background=0.0, wlim=3, klim=5, iaw=False):
+def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1, 
+    show_theory=False, background=0.0, wlim=-1, klim=-1, zlim=[-1,-1],
+    iaw=False):
     # initialize values
     if (iaw==True):
         PATH = os.getcwd() + '/' + rundir + '/ions.h5'
@@ -463,7 +470,24 @@ def plot_wk(rundir, TITLE, b0_mag, plot_or, show_theory=False, background=0.0, w
     hdf5_data = read_hdf(PATH)
     if (background!=0.0):
         hdf5_data.data = hdf5_data.data-background
+
     hdf5_data = FFT_hdf5(hdf5_data)   # FFT the data (x-t -> w-k)
+    if(wlim == -1):
+        #nt = hdf5_data.shape[0]
+        #dt = hdf5_data.axes[1].axis_max/(hdf5_data.shape[0]-1)
+        #waxis = np.fft.fftfreq(nt, d=dt) * 2*np.pi
+        wlim = hdf5_data.axes[1].axis_max
+        wlow = hdf5_data.axes[1].axis_min
+    else:
+        wlow = 0
+    if(klim == -1):
+        #nx = hdf5_data.shape[0]
+        #dx = hdf5_data.axes[0].axis_max/hdf5_data.shape[1]
+        #kaxis = np.fft.fftfreq(nx, d=dx) * 2*np.pi
+        klim = hdf5_data.axes[0].axis_max
+        klow = hdf5_data.axes[0].axis_min
+    else:
+        klow = 0
 
     w_p = 1.0                         # plamsa frequency
     w_c = b0_mag                      # cyclotron freq
@@ -475,13 +499,13 @@ def plot_wk(rundir, TITLE, b0_mag, plot_or, show_theory=False, background=0.0, w
 
     if (b0_mag==0):
         if (plot_or==1):
-            wvals = np.sqrt(1 + 3 * 0.1**2 * kvals**2)
+            wvals = np.sqrt(w_p**2 + 3 * vth**2 * kvals**2)
     #     else:
     #         wvals = np.sqrt(1 + kvals**2)
     # elif (plot_or==3):
     #     wvals = np.sqrt(1 + kvals**2)
     else:
-        wvals = np.sqrt(1 + kvals**2)
+        wvals = np.sqrt(w_p**2 + kvals**2)
 
     wR = np.array([0.5 * ( w_c + np.sqrt(w_c**2 + 4 * w_p**2))
                    for i in np.arange(len(kvals))])        # right-handed cutoff
@@ -498,8 +522,11 @@ def plot_wk(rundir, TITLE, b0_mag, plot_or, show_theory=False, background=0.0, w
         plt.title(TITLE + ' w-k space' + ' ion density' )
     plt.xlabel('k  [$\omega_{pe}$/c]')
     plt.ylabel('$\omega$  [$\omega_{pe}$]')
-    plt.xlim(0,klim)
-    plt.ylim(0,wlim)
+    plt.xlim(klow,klim)
+    plt.ylim(wlow,wlim)
+    if(zlim != [-1,-1]):
+        plt.clim(zlim)
+
     if (show_theory==True):
         # for i in range(1,10):
         #     plt.plot(kvals, i*w_cvals, 'w--', label='')

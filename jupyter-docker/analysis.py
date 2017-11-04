@@ -5,14 +5,21 @@ from scipy.signal import hilbert
 
 def FFT_hdf5(data_bundle):
     # here we fourier analyze the data in space
-    k_data=np.fft.fft(data_bundle.data,axis=1)
-    k_data_2=np.fft.fft(k_data,axis=0)
+    #k_data=np.fft.fft(data_bundle.data,axis=1)
+    #k_data_2=np.fft.fft(k_data,axis=0)
+    k_data_2 = np.fliplr(np.fft.fftshift(np.fft.fft2(data_bundle.data)))
     data_bundle.data=np.log(np.abs(k_data_2)+0.00000000001)
     dt=data_bundle.axes[1].axis_max/(data_bundle.shape[0]-1)
     dx=data_bundle.axes[0].axis_max/data_bundle.shape[1]
-    data_bundle.axes[1].axis_max=2.0*3.1415926/dt
-    data_bundle.axes[0].axis_max=2.0*3.1415926/dx
-
+    waxis = np.fft.fftfreq(data_bundle.shape[0], d=dt) * 2*np.pi
+    kaxis = np.fft.fftfreq(data_bundle.shape[1], d=dx) * 2*np.pi
+    #data_bundle.axes[1].axis_max=2.0*3.1415926/dt
+    #data_bundle.axes[0].axis_max=2.0*3.1415926/dx
+    data_bundle.axes[1].axis_max=max(waxis)
+    data_bundle.axes[0].axis_max=max(kaxis)
+    data_bundle.axes[1].axis_min=min(waxis)
+    data_bundle.axes[0].axis_min=min(kaxis)
+    
     return data_bundle
 
 def update_fft_axes(axes, forward=True):
