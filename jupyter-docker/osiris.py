@@ -61,6 +61,9 @@ def runosiris(rundir='',inputfile='osiris-input.txt'):
     #if (iaw==True):
     if (os.path.isdir(workdir+'/MS/DENSITY/ions/charge')):
         combine_h5_iaw()
+        
+    IPython.display.clear_output(wait=True)
+    print('runosiris completed normally...what a relief')
 
     return
 
@@ -370,6 +373,7 @@ def wkplot(rundir='',dataset='e3',klim=[-1,-1],wlim=[-1,-1],zlim=[-1,-1],
 
     return plotdata
 
+
 # def modfig(oldfig,klim=[-1,-1],wlim=[-1,-1],zlim=[-1,-1],):
 #     #fig = oldfig #plt.figure(figsize=(8, 8))
 #     #ax = oldfig.add_subplot(111)
@@ -396,6 +400,7 @@ def x(n):
     x = one_0 + n/n_peak * one_D
     return x
 
+
 def gen_path(rundir, plot_or):
     PATH = os.getcwd() + '/' + rundir
     if (plot_or==1):
@@ -407,6 +412,7 @@ def gen_path(rundir, plot_or):
     else:
         PATH += '/ions.h5'
     return PATH
+
 
 def plot_xt(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False):
     # initialize values
@@ -436,6 +442,7 @@ def plot_xt(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False):
         plt.plot(x_vals4, y_vals, 'g--', label='$\omega$$_h$ o-resonance')
         plt.legend(loc=0)
     plt.show()
+    
 
 def plot_log_xt(PATH, TITLE):
     # initialize values
@@ -459,19 +466,18 @@ def plot_log_xt(PATH, TITLE):
     # plt.legend(loc=0)
     plt.show()
 
+    
 def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1, 
-    show_theory=False, background=0.0, wlim=-1, klim=-1, zlim=[-1,-1],
-    iaw=False):
+    show_theory=False, background=0.0, wlim=-1, klim=-1, zlim=[-1,-1]):
+    
     # initialize values
-    if (iaw==True):
-        PATH = os.getcwd() + '/' + rundir + '/ions.h5'
-    else:
-        PATH = gen_path(rundir, plot_or)
+    PATH = gen_path(rundir, plot_or)
     hdf5_data = read_hdf(PATH)
     if (background!=0.0):
         hdf5_data.data = hdf5_data.data-background
 
     hdf5_data = FFT_hdf5(hdf5_data)   # FFT the data (x-t -> w-k)
+
     if(wlim == -1):
         #nt = hdf5_data.shape[0]
         #dt = hdf5_data.axes[1].axis_max/(hdf5_data.shape[0]-1)
@@ -492,18 +498,14 @@ def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1,
     w_p = 1.0                         # plamsa frequency
     w_c = b0_mag                      # cyclotron freq
     w_0 = 1.0
+    vth_mag = vth #sqrt(3 * vth**2)
 
     N = 100
     dx = float(klim)/N
     kvals = np.arange(0, klim+.01, dx)
 
-    if (b0_mag==0):
-        if (plot_or==1):
-            wvals = np.sqrt(w_p**2 + 3 * vth**2 * kvals**2)
-    #     else:
-    #         wvals = np.sqrt(1 + kvals**2)
-    # elif (plot_or==3):
-    #     wvals = np.sqrt(1 + kvals**2)
+    if (b0_mag==0 and plot_or==1):
+        wvals = np.sqrt(w_p**2 + 3 * vth_mag**2 * kvals**2)
     else:
         wvals = np.sqrt(w_p**2 + kvals**2)
 
@@ -526,15 +528,52 @@ def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1,
     plt.ylim(wlow,wlim)
     if(zlim != [-1,-1]):
         plt.clim(zlim)
-
+        
     if (show_theory==True):
-        # for i in range(1,10):
-        #     plt.plot(kvals, i*w_cvals, 'w--', label='')
-        plt.plot(kvals, wR, 'b--', label='$\omega$$_R$, right-handed cutoff') #R-cutoff
-        plt.plot(kvals, wL, 'r--', label='$\omega$$_L$, left-handed cutoff')  #L-cutoff
+        plt.plot(kvals, wvals,'b', label='')
+        if (b0_mag!=0):
+            # for i in range(1,10):
+            #     plt.plot(kvals, i*w_cvals, 'w--', label='')
+            plt.plot(kvals, wR, 'b--', label='$\omega$$_R$, right-handed cutoff') #R-cutoff
+            plt.plot(kvals, wL, 'r--', label='$\omega$$_L$, left-handed cutoff')  #L-cutoff
+            plt.legend(loc=0)
+            
+    plt.show()
+    
+    
+def plot_wk_iaw(rundir, TITLE, show_theory=False, background=0.0, wlim=3, klim=5):
+    
+    # initialize values
+    PATH = os.getcwd() + '/' + rundir + '/ions.h5'
+    hdf5_data = read_hdf(PATH)
+    if (background!=0.0):
+        hdf5_data.data = hdf5_data.data-background
+    hdf5_data = FFT_hdf5(hdf5_data)         # FFT the data (x-t -> w-k)
+
+    c_s = 0.01                              # sound speed
+    w_pi = 0.1                              # plasma ion freq
+
+    N = 100
+    dx = float(klim)/N
+    kvals = np.arange(0, klim+.01, dx)
+    wvals = kvals * c_s
+
+    # create figure
+    plt.figure()
+    plotme(hdf5_data)
+    if (plot_or !=4):
+        plt.title(TITLE + ' w-k space' + ' e' + str(plot_or))
+    else:
+        plt.title(TITLE + ' w-k space' + ' ion density' )
+    plt.xlabel('k  [$\omega_{pe}$/c]')
+    plt.ylabel('$\omega$  [$\omega_{pe}$]')
+    plt.xlim(0,klim)
+    plt.ylim(0,wlim)
+    if (show_theory==True):
         plt.plot(kvals, wvals,'b', label='')
         plt.legend(loc=0)
     plt.show()
+    
 
 def get_ratio(PATH1, PATH2):
     #Function gets ratio of hdf52 and hdf51 in w-k space
@@ -552,6 +591,7 @@ def get_ratio(PATH1, PATH2):
                hdf51.data[i,j] = 0.0
 
     return hdf51
+
 
 def plot_mode_hist(hdf5):
     # plot mode history for a couple of modes
