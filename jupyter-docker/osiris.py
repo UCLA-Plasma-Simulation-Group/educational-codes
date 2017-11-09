@@ -1,3 +1,5 @@
+# Forked from main version 11/8/17 21:43
+
 import os
 import shutil
 import subprocess
@@ -414,7 +416,8 @@ def gen_path(rundir, plot_or):
     return PATH
 
 
-def plot_xt(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False):
+def plot_xt(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False,
+    vmin0=None, vmax0=None, cmap0='Rainbow'):
     # initialize values
     PATH = gen_path(rundir, plot_or)
     hdf5_data = read_hdf(PATH)
@@ -431,7 +434,7 @@ def plot_xt(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False):
 
     # create figure
     plt.figure()
-    plotme(hdf5_data)
+    plotme(hdf5_data, vmin=vmin0, vmax=vmax0, cmap=cmap0)
     plt.title(TITLE + ' x-t space' + ' e' + str(plot_or))
     plt.xlabel('x')
     plt.ylabel('t')
@@ -468,14 +471,12 @@ def plot_log_xt(PATH, TITLE):
 
     
 def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1, 
-    show_theory=False, background=0.0, wlim=-1, klim=-1, zlim=[-1,-1]):
+    show_theory=False, wlim=-1, klim=-1, zlim=[-1,-1], vmin0=None,
+    vmax0=None, cmap0='Rainbow'):
     
     # initialize values
     PATH = gen_path(rundir, plot_or)
     hdf5_data = read_hdf(PATH)
-    if (background!=0.0):
-        hdf5_data.data = hdf5_data.data-background
-
     hdf5_data = FFT_hdf5(hdf5_data)   # FFT the data (x-t -> w-k)
 
     if(wlim == -1):
@@ -498,7 +499,7 @@ def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1,
     w_p = 1.0                         # plamsa frequency
     w_c = b0_mag                      # cyclotron freq
     w_0 = 1.0
-    vth_mag = vth #sqrt(3 * vth**2)
+    vth_mag = vth
 
     N = 100
     dx = float(klim)/N
@@ -517,18 +518,14 @@ def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1,
 
     # create figure
     plt.figure()
-    plotme(hdf5_data)
-    if (plot_or !=4):
-        plt.title(TITLE + ' w-k space' + ' e' + str(plot_or))
-    else:
-        plt.title(TITLE + ' w-k space' + ' ion density' )
+    plotme(hdf5_data, vmin=vmin0, vmax=vmax0, cmap=cmap0)             # colorbar min and max
+    plt.title(TITLE + ' w-k space' + ' e' + str(plot_or))
     plt.xlabel('k  [$\omega_{pe}$/c]')
     plt.ylabel('$\omega$  [$\omega_{pe}$]')
     plt.xlim(klow,klim)
     plt.ylim(wlow,wlim)
     if(zlim != [-1,-1]):
-        plt.clim(zlim)
-        
+        plt.clim(zlim)    
     if (show_theory==True):
         plt.plot(kvals, wvals,'b', label='')
         if (b0_mag!=0):
