@@ -417,7 +417,7 @@ def gen_path(rundir, plot_or):
 
 
 def plot_xt(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False,
-    vmin0=None, vmax0=None, cmap0='Rainbow'):
+    vmin=None, vmax=None, cmap='Rainbow'):
     # initialize values
     PATH = gen_path(rundir, plot_or)
     hdf5_data = read_hdf(PATH)
@@ -434,7 +434,7 @@ def plot_xt(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False,
 
     # create figure
     plt.figure()
-    plotme(hdf5_data, vmin=vmin0, vmax=vmax0, cmap=cmap0)
+    plotme(hdf5_data, vmin=vmin, vmax=vmax, cmap=cmap)
     plt.title(TITLE + ' x-t space' + ' e' + str(plot_or))
     plt.xlabel('x')
     plt.ylabel('t')
@@ -471,39 +471,36 @@ def plot_log_xt(PATH, TITLE):
 
     
 def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1, 
-    show_theory=False, wlim=-1, klim=-1, zlim=[-1,-1], vmin0=None,
-    vmax0=None, cmap0='Rainbow'):
+#     show_theory=False, wlim=-1, klim=-1, zlim=[-1,-1], vmin0=None,
+    show_theory=False, wlim=[None,None], klim=[None,None], zlim=[-1,-1], 
+    vmin=None, vmax=None, cmap0='Rainbow'):
     
     # initialize values
     PATH = gen_path(rundir, plot_or)
     hdf5_data = read_hdf(PATH)
     hdf5_data = FFT_hdf5(hdf5_data)   # FFT the data (x-t -> w-k)
 
-    if(wlim == -1):
+    if(wlim == [None,None]):
         #nt = hdf5_data.shape[0]
         #dt = hdf5_data.axes[1].axis_max/(hdf5_data.shape[0]-1)
         #waxis = np.fft.fftfreq(nt, d=dt) * 2*np.pi
-        wlim = hdf5_data.axes[1].axis_max
-        wlow = hdf5_data.axes[1].axis_min
-    else:
-        wlow = 0
-    if(klim == -1):
+        wlim[0] = hdf5_data.axes[1].axis_min
+        wlim[1] = hdf5_data.axes[1].axis_max
+    if(klim == [None,None]):
         #nx = hdf5_data.shape[0]
         #dx = hdf5_data.axes[0].axis_max/hdf5_data.shape[1]
         #kaxis = np.fft.fftfreq(nx, d=dx) * 2*np.pi
-        klim = hdf5_data.axes[0].axis_max
-        klow = hdf5_data.axes[0].axis_min
-    else:
-        klow = 0
-
+        klim[0] = hdf5_data.axes[0].axis_min
+        klim[1] = hdf5_data.axes[0].axis_max
+        
     w_p = 1.0                         # plamsa frequency
     w_c = b0_mag                      # cyclotron freq
     w_0 = 1.0
     vth_mag = vth
 
     N = 100
-    dx = float(klim)/N
-    kvals = np.arange(0, klim+.01, dx)
+    dx = float(klim[1])/N
+    kvals = np.arange(0, klim[1]+.01, dx)
 
     if (b0_mag==0 and plot_or==1):
         wvals = np.sqrt(w_p**2 + 3 * vth_mag**2 * kvals**2)
@@ -518,12 +515,12 @@ def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1,
 
     # create figure
     plt.figure()
-    plotme(hdf5_data, vmin=vmin0, vmax=vmax0, cmap=cmap0)             # colorbar min and max
+    plotme(hdf5_data, vmin=vmin, vmax=vmax, cmap=cmap0)             # colorbar min and max
     plt.title(TITLE + ' w-k space' + ' e' + str(plot_or))
     plt.xlabel('k  [$\omega_{pe}$/c]')
     plt.ylabel('$\omega$  [$\omega_{pe}$]')
-    plt.xlim(klow,klim)
-    plt.ylim(wlow,wlim)
+    plt.xlim(klim[0],klim[1])
+    plt.ylim(wlim[0],wlim[1])
     if(zlim != [-1,-1]):
         plt.clim(zlim)    
     if (show_theory==True):
