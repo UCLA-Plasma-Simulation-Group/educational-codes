@@ -8,7 +8,7 @@ from pylab import *
 
 import os
 
-def plotme(hdf_data, data = None, vmin=None, vmax=None, cmap='Rainbow'):
+def plotme(hdf_data, data = None, **kwargs):
 
 	data_to_use = hdf_data.data
 	if data != None:
@@ -22,7 +22,7 @@ def plotme(hdf_data, data = None, vmin=None, vmax=None, cmap='Rainbow'):
 
 	if len(data_to_use.shape) == 2:
 		extent_stuff = [	hdf_data.axes[0].axis_min, hdf_data.axes[0].axis_max, hdf_data.axes[1].axis_min, hdf_data.axes[1].axis_max]
-		plot_object = imshow(data_to_use, extent=extent_stuff, aspect='auto', cmap=cmap,origin='lower', vmin=vmin, vmax=vmax)
+		plot_object = imshow(data_to_use, extent=extent_stuff, aspect='auto',origin='lower', **kwargs)
 		cb=colorbar(plot_object) # original cmap='Rainbow'
 		cb.set_label("%s \n %s"% ( hdf_data.data_attributes['LONG_NAME'], hdf_data.data_attributes['UNITS']) )
 		xlabel("%s		%s" % (hdf_data.axes[0].attributes['LONG_NAME'][0], (hdf_data.axes[0].attributes['UNITS'])[0] ))

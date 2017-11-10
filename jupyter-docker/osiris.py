@@ -417,7 +417,8 @@ def gen_path(rundir, plot_or):
 
 
 def plot_xt(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False,
-    vmin=None, vmax=None, cmap='Rainbow'):
+            **kwargs):
+    
     # initialize values
     PATH = gen_path(rundir, plot_or)
     hdf5_data = read_hdf(PATH)
@@ -434,7 +435,7 @@ def plot_xt(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False,
 
     # create figure
     plt.figure()
-    plotme(hdf5_data, vmin=vmin, vmax=vmax, cmap=cmap)
+    plotme(hdf5_data, **kwargs)
     plt.title(TITLE + ' x-t space' + ' e' + str(plot_or))
     plt.xlabel('x')
     plt.ylabel('t')
@@ -470,10 +471,8 @@ def plot_log_xt(PATH, TITLE):
     plt.show()
 
     
-def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1, 
-#     show_theory=False, wlim=-1, klim=-1, zlim=[-1,-1], vmin0=None,
-    show_theory=False, wlim=[None,None], klim=[None,None], zlim=[-1,-1], 
-    vmin=None, vmax=None, cmap0='Rainbow'):
+def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1, show_theory=False, 
+            wlim=[None,None], klim=[None,None], zlim=[-1,-1], **kwargs):
     
     # initialize values
     PATH = gen_path(rundir, plot_or)
@@ -496,14 +495,13 @@ def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1,
     w_p = 1.0                         # plamsa frequency
     w_c = b0_mag                      # cyclotron freq
     w_0 = 1.0
-    vth_mag = vth
 
     N = 100
     dx = float(klim[1])/N
     kvals = np.arange(0, klim[1]+.01, dx)
 
     if (b0_mag==0 and plot_or==1):
-        wvals = np.sqrt(w_p**2 + 3 * vth_mag**2 * kvals**2)
+        wvals = np.sqrt(w_p**2 + 3 * vth**2 * kvals**2)
     else:
         wvals = np.sqrt(w_p**2 + kvals**2)
 
@@ -515,7 +513,7 @@ def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1,
 
     # create figure
     plt.figure()
-    plotme(hdf5_data, vmin=vmin, vmax=vmax, cmap=cmap0)             # colorbar min and max
+    plotme(hdf5_data, **kwargs)
     plt.title(TITLE + ' w-k space' + ' e' + str(plot_or))
     plt.xlabel('k  [$\omega_{pe}$/c]')
     plt.ylabel('$\omega$  [$\omega_{pe}$]')
