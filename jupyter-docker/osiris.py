@@ -53,7 +53,7 @@ def runosiris(rundir='',inputfile='osiris-input.txt'):
         shutil.copyfile(inputfile,workdir+'/osiris-input.txt')
 #    for path in execute(["./osiris-1D.e","-w",workdir,"osiris-input.txt"]):
     for path in execute(["osiris-1D.e","-w",workdir,"osiris-input.txt"]):
-        IPython.display.clear_output(wait=True)
+#         IPython.display.clear_output(wait=True)
         print(path, end='')
 
     # run combine_h5_util_1d.py script for e1/, e2/, e3/ (and iaw)
@@ -65,7 +65,7 @@ def runosiris(rundir='',inputfile='osiris-input.txt'):
         combine_h5_iaw()
         
     IPython.display.clear_output(wait=True)
-    print('runosiris completed normally...what a relief')
+    print('runosiris completed normally')
 
     return
 
@@ -472,12 +472,15 @@ def plot_log_xt(PATH, TITLE):
 
     
 def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1, show_theory=False, 
-            wlim=[None,None], klim=[None,None], zlim=[-1,-1], **kwargs):
+            wlim=[None,None], klim=[None,None], zlim=[-1,-1], debye=False, **kwargs):
     
     # initialize values
     PATH = gen_path(rundir, plot_or)
     hdf5_data = read_hdf(PATH)
     hdf5_data = FFT_hdf5(hdf5_data)   # FFT the data (x-t -> w-k)
+    if (debye==True):
+        hdf5_data.axes[0].axis_min *= vth
+        hdf5_data.axes[0].axis_max *= vth
 
     if(wlim == [None,None]):
         #nt = hdf5_data.shape[0]
@@ -501,9 +504,15 @@ def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1, show_theory=False,
     kvals = np.arange(0, klim[1]+.01, dx)
 
     if (b0_mag==0 and plot_or==1):
-        wvals = np.sqrt(w_p**2 + 3 * vth**2 * kvals**2)
+        if (debye==True):
+            wvals = np.sqrt(w_p**2 + 3 * vth**2 * (kvals/vth)**2)
+        else:
+            wvals = np.sqrt(w_p**2 + 3 * vth**2 * (kvals)**2)
     else:
-        wvals = np.sqrt(w_p**2 + kvals**2)
+        if (debye==True):
+            wvals = np.sqrt(w_p**2 + (kvals/vth)**2)
+        else:
+            wvals = np.sqrt(w_p**2 + kvals**2)
 
     wR = np.array([0.5 * ( w_c + np.sqrt(w_c**2 + 4 * w_p**2))
                    for i in np.arange(len(kvals))])        # right-handed cutoff
@@ -515,7 +524,10 @@ def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1, show_theory=False,
     plt.figure()
     plotme(hdf5_data, **kwargs)
     plt.title(TITLE + ' w-k space' + ' e' + str(plot_or))
-    plt.xlabel('k  [$\omega_{pe}$/c]')
+    if (debye==True):
+        plt.xlabel('k  [$\lambda_D$]')
+    else:
+        plt.xlabel('k  [$\omega_{pe}$/c]')
     plt.ylabel('$\omega$  [$\omega_{pe}$]')
     plt.xlim(klim[0],klim[1])
     plt.ylim(wlim[0],wlim[1])
