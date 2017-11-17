@@ -52,9 +52,13 @@ def runosiris(rundir='',inputfile='osiris-input.txt'):
 #        shutil.copyfile('osiris-1D.e',workdir+'/osiris-1D.e')
         shutil.copyfile(inputfile,workdir+'/osiris-input.txt')
 #    for path in execute(["./osiris-1D.e","-w",workdir,"osiris-input.txt"]):
+    waittick = 0
     for path in execute(["osiris-1D.e","-w",workdir,"osiris-input.txt"]):
-#         IPython.display.clear_output(wait=True)
-        print(path, end='')
+        waittick += 1
+        if(waittick == 100):
+            IPython.display.clear_output(wait=True)
+            waittick = 0
+            print(path, end='')
 
     # run combine_h5_util_1d.py script for e1/, e2/, e3/ (and iaw)
     combine_h5('e1')
@@ -70,9 +74,22 @@ def runosiris(rundir='',inputfile='osiris-input.txt'):
     return
 
 
-def field(rundir='',dataset='e1',time=0,
+def field(rundir='',dataset='e1',time=0,space=-1,
     xlim=[-1,-1],ylim=[-1,-1],zlim=[-1,-1],
-    plotdata=[]):
+    plotdata=[], **kwargs):
+
+    if(space != -1):
+        plot_or = 1
+        PATH = gen_path(rundir, plot_or)
+        hdf5_data = read_hdf(PATH)
+        plt.figure()
+        #plotme(hdf5_data.data[:,space], **kwargs)
+        plotme(hdf5_data,hdf5_data.data[space,:])
+        plt.title('temporal evolution of e' + str(plot_or) + ' at cell ' + str(space))
+        plt.xlabel('t')
+        plt.show()
+        return
+
 
     workdir = os.getcwd()
     workdir = os.path.join(workdir, rundir)

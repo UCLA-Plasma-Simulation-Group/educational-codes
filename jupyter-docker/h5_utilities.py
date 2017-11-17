@@ -11,13 +11,13 @@ import os
 def plotme(hdf_data, data = None, **kwargs):
 
 	data_to_use = hdf_data.data
-	if data != None:
+	if data is not None:
 		data_to_use = data
 
 	if len(data_to_use.shape) == 1:
-		plot_object =  plot(hdf_data.axes[0].get_axis_points(), data_to_use)
+		plot_object =  plot(hdf_data.axes[1].get_axis_points(), data_to_use)
 		xlabel("%s	 %s" % (hdf_data.axes[0].attributes['LONG_NAME'][0], (hdf_data.axes[0].attributes['UNITS'] )[0]))
-		ylabel("%s	   %s"% ( hdf_data.data_attributes['LONG_NAME'][0], (hdf_data.data_attributes['UNITS'][0])) )
+		ylabel("%s	   %s"% ( hdf_data.data_attributes['LONG_NAME'], (hdf_data.data_attributes['UNITS'])) )
 		return plot_object
 
 	if len(data_to_use.shape) == 2:
