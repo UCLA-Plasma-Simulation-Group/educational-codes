@@ -1,5 +1,3 @@
-# Forked from main version 11/8/17 21:43
-
 import os
 import shutil
 import subprocess
@@ -13,9 +11,8 @@ from ipywidgets import interact
 from h5_utilities import *
 from analysis import *
 
-#def runosiris(rundir='',inputfile='osiris-input.txt',iaw=False):
 def runosiris(rundir='',inputfile='osiris-input.txt'):
-
+    
     def execute(cmd):
         popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
         for stdout_line in iter(popen.stdout.readline, ""):
@@ -490,7 +487,7 @@ def plot_log_xt(PATH, TITLE):
     
 def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1, show_theory=False, 
             wlim=[None,None], klim=[None,None], zlim=[-1,-1], debye=False, **kwargs):
-    
+  
     # initialize values
     PATH = gen_path(rundir, plot_or)
     hdf5_data = read_hdf(PATH)
