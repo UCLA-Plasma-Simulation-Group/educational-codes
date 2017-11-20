@@ -431,11 +431,18 @@ def gen_path(rundir, plot_or):
 
 
 def plot_xt(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False,
-            **kwargs):
+            xlim=[None,None], tlim=[None,None], **kwargs):
     
     # initialize values
     PATH = gen_path(rundir, plot_or)
     hdf5_data = read_hdf(PATH)
+    
+    if(xlim == [None,None]):
+        xlim[0] = hdf5_data.axes[0].axis_min
+        xlim[1] = hdf5_data.axes[0].axis_max
+    if(tlim == [None,None]):
+        tlim[0] = hdf5_data.axes[1].axis_min
+        tlim[1] = hdf5_data.axes[1].axis_max
 
     w_0 = 1.0
     n_L = w_0**2 + w_0*b0_mag
@@ -453,6 +460,8 @@ def plot_xt(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False,
     plt.title(TITLE + ' x-t space' + ' e' + str(plot_or))
     plt.xlabel('x')
     plt.ylabel('t')
+    plt.xlim(xlim[0],xlim[1])
+    plt.ylim(tlim[0],tlim[1])  
     if (show_theory==True):
         plt.plot(x_vals, y_vals, 'c--', label='$\omega$$_L$ x-cutoff') #L-cutoff
         plt.plot(x_vals2, y_vals, 'b--', label='$\omega$$_R$ x-cutoff')#R-cutoff
@@ -486,7 +495,7 @@ def plot_log_xt(PATH, TITLE):
 
     
 def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1, show_theory=False, 
-            wlim=[None,None], klim=[None,None], zlim=[-1,-1], debye=False, **kwargs):
+            wlim=[None,None], klim=[None,None], debye=False, **kwargs):
   
     # initialize values
     PATH = gen_path(rundir, plot_or)
@@ -544,9 +553,7 @@ def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1, show_theory=False,
         plt.xlabel('k  [$\omega_{pe}$/c]')
     plt.ylabel('$\omega$  [$\omega_{pe}$]')
     plt.xlim(klim[0],klim[1])
-    plt.ylim(wlim[0],wlim[1])
-    if(zlim != [-1,-1]):
-        plt.clim(zlim)    
+    plt.ylim(wlim[0],wlim[1])   
     if (show_theory==True):
         plt.plot(kvals, wvals,'b', label='')
         if (b0_mag!=0):
