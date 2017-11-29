@@ -470,6 +470,49 @@ def plot_xt(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False,
         plt.legend(loc=0)
     plt.show()
     
+def plot_tx(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False,
+            xlim=[None,None], tlim=[None,None], show_cutoff=False, **kwargs):
+
+    # initialize values
+    PATH = gen_path(rundir, plot_or)
+    hdf5_data = read_hdf(PATH)
+
+    if(xlim == [None,None]):
+        xlim[0] = hdf5_data.axes[0].axis_min
+        xlim[1] = hdf5_data.axes[0].axis_max
+    if(tlim == [None,None]):
+        tlim[0] = hdf5_data.axes[1].axis_min
+        tlim[1] = hdf5_data.axes[1].axis_max
+
+    w_0 = 1.0
+    n_L = w_0**2 + w_0*b0_mag
+    n_R = w_0**2 - w_0*b0_mag
+
+    y_vals = np.arange(hdf5_data.axes[1].axis_min, hdf5_data.axes[1].axis_max, 1)
+    x_vals = np.full(len(y_vals), x(n_L))
+    x_vals2 = np.full(len(y_vals), x(n_R))
+    x_vals3 = np.full(len(y_vals), x(1.0))
+    x_vals4 = np.full(len(y_vals), x(w_0**2 - b0_mag**2))
+    x_vals5 = np.full(len(y_vals), 30.0)
+
+    # create figure
+    plt.figure()
+    plotmetranspose(hdf5_data, np.transpose(hdf5_data.data), **kwargs)
+    plt.title(TITLE + ' t-x space' + ' e' + str(plot_or))
+    plt.xlabel('t')
+    plt.ylabel('x')
+    plt.xlim(tlim[0],tlim[1])
+    plt.ylim(xlim[0],xlim[1])
+    if (show_theory==True):
+        plt.plot(y_vals, x_vals, 'c--', label='$\omega$$_L$ x-cutoff') #L-cutoff
+        plt.plot(y_vals, x_vals2, 'b--', label='$\omega$$_R$ x-cutoff')#R-cutoff
+        plt.plot(y_vals, x_vals3, 'r--', label='$\omega$$_P$ o-cutoff')
+        plt.plot(y_vals, x_vals4, 'g--', label='$\omega$$_h$ o-resonance')
+        plt.legend(loc=0)
+    if (show_cutoff==True):
+        plt.plot(y_vals, x_vals5,'b', label='')
+    plt.show()
+    
 
 def plot_log_xt(PATH, TITLE):
     # initialize values
@@ -538,9 +581,11 @@ def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1, show_theory=False,
             wvals = np.sqrt(w_p**2 + kvals**2)
 
     wR = np.array([0.5 * ( w_c + np.sqrt(w_c**2 + 4 * w_p**2))
-                   for i in np.arange(len(kvals))])        # right-handed cutoff
+                   for i in np.arange(len(kvals))])            # right-handed cutoff
     wL = np.array([0.5 * (-w_c + np.sqrt(w_c**2 + 4 * w_p**2))
-                   for i in np.arange(len(kvals))])        # left-handed cutoff
+                   for i in np.arange(len(kvals))])            # left-handed cutoff
+    wH = np.array([np.sqrt(w_p**2 + w_c**2) 
+                   for i in np.arange(len(kvals))])            # hybrid frequency
     w_cvals = np.array([w_c for i in np.arange(len(kvals))])
 
     # create figure
@@ -555,12 +600,13 @@ def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1, show_theory=False,
     plt.xlim(klim[0],klim[1])
     plt.ylim(wlim[0],wlim[1])   
     if (show_theory==True):
-        plt.plot(kvals, wvals,'b', label='')
+        plt.plot(kvals, wvals,'fuchsia', label='')
         if (b0_mag!=0):
             # for i in range(1,10):
             #     plt.plot(kvals, i*w_cvals, 'w--', label='')
-            plt.plot(kvals, wR, 'b--', label='$\omega$$_R$, right-handed cutoff') #R-cutoff
-            plt.plot(kvals, wL, 'r--', label='$\omega$$_L$, left-handed cutoff')  #L-cutoff
+            plt.plot(kvals, wR, 'r--', label='$\omega_R$, right-handed cutoff') #R-cutoff
+            plt.plot(kvals, wL, 'w--', label='$\omega_L$, left-handed cutoff')  #L-cutoff
+            plt.plot(kvals, wH, 'y--', label='$\omega_H$, hybrid frequency')
             plt.legend(loc=0)
             
     plt.show()
