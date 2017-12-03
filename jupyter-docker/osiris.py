@@ -10,6 +10,7 @@ from ipywidgets import interact
 # %matplotlib inline
 from h5_utilities import *
 from analysis import *
+from scipy.optimize import fsolve
 
 def runosiris(rundir='',inputfile='osiris-input.txt'):
     
@@ -416,6 +417,18 @@ def x(n):
     x = one_0 + n/n_peak * one_D
     return x
 
+def k_xm(w):
+    # xmode dispersion relation
+    c = 1.0
+    w_p = 1.0                         # plamsa frequency
+    w_c = 0.7                      # cyclotron freq
+    w_0 = 1.0
+#     k = np.sqrt((w_p**2/c**2) * ( (w/w_p)**2 - ((w/w_p)**2 - 1) 
+#                  / ((w/w_p)**2 - (1 + (w_c/w_p)**2) ) ))
+    w_H = np.sqrt(w_p**2 + w_c**2)
+    
+    k = w**2/c**2 * (1 - (w_p**2/w**2) * (w**2 - w_p**2) / (w**2 - w_H**2) )
+    return k
 
 def gen_path(rundir, plot_or):
     PATH = os.getcwd() + '/' + rundir
@@ -564,6 +577,7 @@ def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1, show_theory=False,
     w_p = 1.0                         # plamsa frequency
     w_c = b0_mag                      # cyclotron freq
     w_0 = 1.0
+    w_H = np.sqrt(w_p**2 + w_c**2)
 
     N = 100
     dx = float(klim[1])/N
@@ -584,10 +598,16 @@ def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1, show_theory=False,
                    for i in np.arange(len(kvals))])            # right-handed cutoff
     wL = np.array([0.5 * (-w_c + np.sqrt(w_c**2 + 4 * w_p**2))
                    for i in np.arange(len(kvals))])            # left-handed cutoff
-    wH = np.array([np.sqrt(w_p**2 + w_c**2) 
-                   for i in np.arange(len(kvals))])            # hybrid frequency
+    w_H_vals = np.array([w_H for i in np.arange(len(kvals))])            # hybrid frequency
+    w_p_vals = np.array([w_p for i in np.arange(len(kvals))])
     w_cvals = np.array([w_c for i in np.arange(len(kvals))])
-
+    
+    #arrays for xmode theory curve
+    wvals_xm = np.arange(0.1, 5, dx/100.0)
+    kvals_xm = (wvals_xm**2 * (1 - (w_p**2/wvals_xm**2) * (wvals_xm**2 - w_p**2) / (wvals_xm**2 - w_H**2) ))
+    kvals_xm = np.where(kvals_xm > 0, kvals_xm, 0)
+    kvals_xm = np.sqrt(kvals_xm)
+        
     # create figure
     plt.figure()
     plotme(hdf5_data, **kwargs)
@@ -600,13 +620,21 @@ def plot_wk(rundir, TITLE='', vth=0.1, b0_mag=0.0, plot_or=1, show_theory=False,
     plt.xlim(klim[0],klim[1])
     plt.ylim(wlim[0],wlim[1])   
     if (show_theory==True):
-        plt.plot(kvals, wvals,'fuchsia', label='')
         if (b0_mag!=0):
             # for i in range(1,10):
             #     plt.plot(kvals, i*w_cvals, 'w--', label='')
-            plt.plot(kvals, wR, 'r--', label='$\omega_R$, right-handed cutoff') #R-cutoff
-            plt.plot(kvals, wL, 'w--', label='$\omega_L$, left-handed cutoff')  #L-cutoff
-            plt.plot(kvals, wH, 'y--', label='$\omega_H$, hybrid frequency')
+            if (plot_or==2 or plot_or==1):
+                # xmode
+                plt.plot(kvals_xm, wvals_xm, 'fuchsia', label='x-wave dispersion relation')
+                plt.plot(kvals, wR, 'r--', label='$\omega_R$ cutoff')
+                plt.plot(kvals, wL, 'w--', label='$\omega_L$ cutoff') 
+                plt.plot(kvals, w_p_vals, 'r:', label='$\omega_p$') 
+                plt.plot(kvals, w_H_vals, 'w:', label='$\omega_H$, hybrid frequency')
+            elif (plot_or==3):
+                # omode
+                plt.plot(kvals, wvals,'fuchsia', label='o-wave dispersion relation')
+#                 plt.plot(kvals, wR, 'r--', label='$\omega_R$, right-handed cutoff')
+#                 plt.plot(kvals, wL, 'w--', label='$\omega_L$, left-handed cutoff') 
             plt.legend(loc=0)
             
     plt.show()
