@@ -409,11 +409,11 @@ def wkplot(rundir='',dataset='e3',klim=[-1,-1],wlim=[-1,-1],zlim=[-1,-1],
 
 
 # ROMAN'S FUNCTIONS
-def x(n):
+def x(n, one_0 = 10, one_D = 790, n_peak = 2):
     # returns position, x, given density, n
-    one_0 = 10
-    one_D = 790
-    n_peak = 2
+#    one_0 = 10
+#    one_D = 790
+#    n_peak = 2
     x = one_0 + n/n_peak * one_D
     return x
 
@@ -443,7 +443,7 @@ def gen_path(rundir, plot_or):
     return PATH
 
 
-def plot_xt(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False,
+def plot_xt(rundir, TITLE='', b0_mag=0.0, w_0 = 1.0, plot_or=3, show_theory=False,
             xlim=[None,None], tlim=[None,None], **kwargs):
     
     # initialize values
@@ -457,15 +457,15 @@ def plot_xt(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False,
         tlim[0] = hdf5_data.axes[1].axis_min
         tlim[1] = hdf5_data.axes[1].axis_max
 
-    w_0 = 1.0
+#    w_0 = 1.0
     n_L = w_0**2 + w_0*b0_mag
     n_R = w_0**2 - w_0*b0_mag
 
     y_vals = np.arange(hdf5_data.axes[1].axis_min, hdf5_data.axes[1].axis_max, 1)
-    x_vals = np.full(len(y_vals), x(n_L))
-    x_vals2 = np.full(len(y_vals), x(n_R))
-    x_vals3 = np.full(len(y_vals), x(1.0))
-    x_vals4 = np.full(len(y_vals), x(w_0**2 - b0_mag**2))
+    x_vals = np.full(len(y_vals), x(n_L, **kwargs))
+    x_vals2 = np.full(len(y_vals), x(n_R, **kwargs))
+    x_vals3 = np.full(len(y_vals), x(1.0, **kwargs))
+    x_vals4 = np.full(len(y_vals), x(w_0**2 - b0_mag**2, **kwargs))
 
     # create figure
     plt.figure()
@@ -484,7 +484,7 @@ def plot_xt(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False,
     plt.show()
     
 def plot_tx(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False,
-            xlim=[None,None], tlim=[None,None], show_cutoff=False, **kwargs):
+            xlim=[None,None], tlim=[None,None], show_cutoff=False, w_0 = 1.0, **kwargs):
 
     # initialize values
     PATH = gen_path(rundir, plot_or)
@@ -497,15 +497,15 @@ def plot_tx(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False,
         tlim[0] = hdf5_data.axes[1].axis_min
         tlim[1] = hdf5_data.axes[1].axis_max
 
-    w_0 = 1.0
+#    w_0 = 1.0
     n_L = w_0**2 + w_0*b0_mag
     n_R = w_0**2 - w_0*b0_mag
 
     y_vals = np.arange(hdf5_data.axes[1].axis_min, hdf5_data.axes[1].axis_max, 1)
-    x_vals = np.full(len(y_vals), x(n_L))
-    x_vals2 = np.full(len(y_vals), x(n_R))
-    x_vals3 = np.full(len(y_vals), x(1.0))
-    x_vals4 = np.full(len(y_vals), x(w_0**2 - b0_mag**2))
+    x_vals = np.full(len(y_vals), x(n_L, **kwargs))
+    x_vals2 = np.full(len(y_vals), x(n_R, **kwargs))
+    x_vals3 = np.full(len(y_vals), x(1.0, **kwargs))
+    x_vals4 = np.full(len(y_vals), x(w_0**2 - b0_mag**2, **kwargs))
     x_vals5 = np.full(len(y_vals), 30.0)
 
     # create figure
