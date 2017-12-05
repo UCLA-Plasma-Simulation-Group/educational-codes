@@ -443,7 +443,7 @@ def gen_path(rundir, plot_or):
     return PATH
 
 
-def plot_xt(rundir, TITLE='', b0_mag=0.0, w_0 = 1.0, plot_or=3, show_theory=False,
+def plot_xt(rundir, TITLE='', b0_mag=0.0, w_0 = 1.0, one_0 = 10, one_D= 790, n_peak = 2, plot_or=3, show_theory=False,
             xlim=[None,None], tlim=[None,None], **kwargs):
     
     # initialize values
@@ -462,10 +462,10 @@ def plot_xt(rundir, TITLE='', b0_mag=0.0, w_0 = 1.0, plot_or=3, show_theory=Fals
     n_R = w_0**2 - w_0*b0_mag
 
     y_vals = np.arange(hdf5_data.axes[1].axis_min, hdf5_data.axes[1].axis_max, 1)
-    x_vals = np.full(len(y_vals), x(n_L, **kwargs))
-    x_vals2 = np.full(len(y_vals), x(n_R, **kwargs))
-    x_vals3 = np.full(len(y_vals), x(1.0, **kwargs))
-    x_vals4 = np.full(len(y_vals), x(w_0**2 - b0_mag**2, **kwargs))
+    x_vals = np.full(len(y_vals), x(n_L, one_0=one_0, one_D=one_D, n_peak=n_peak))
+    x_vals2 = np.full(len(y_vals), x(n_R, one_0=one_0, one_D=one_D, n_peak=n_peak))
+    x_vals3 = np.full(len(y_vals), x(w_0*w_0, one_0=one_0, one_D=one_D, n_peak=n_peak))
+    x_vals4 = np.full(len(y_vals), x(w_0**2 - b0_mag**2, one_0=one_0, one_D=one_D, n_peak=n_peak))
 
     # create figure
     plt.figure()
@@ -484,7 +484,7 @@ def plot_xt(rundir, TITLE='', b0_mag=0.0, w_0 = 1.0, plot_or=3, show_theory=Fals
     plt.show()
     
 def plot_tx(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False,
-            xlim=[None,None], tlim=[None,None], show_cutoff=False, w_0 = 1.0, **kwargs):
+            xlim=[None,None], tlim=[None,None], show_cutoff=False, w_0 = 1.0, one_0 = 10, one_D= 790, n_peak = 2, **kwargs):
 
     # initialize values
     PATH = gen_path(rundir, plot_or)
@@ -502,10 +502,10 @@ def plot_tx(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False,
     n_R = w_0**2 - w_0*b0_mag
 
     y_vals = np.arange(hdf5_data.axes[1].axis_min, hdf5_data.axes[1].axis_max, 1)
-    x_vals = np.full(len(y_vals), x(n_L, **kwargs))
-    x_vals2 = np.full(len(y_vals), x(n_R, **kwargs))
-    x_vals3 = np.full(len(y_vals), x(1.0, **kwargs))
-    x_vals4 = np.full(len(y_vals), x(w_0**2 - b0_mag**2, **kwargs))
+    x_vals = np.full(len(y_vals), x(n_L, one_0=one_0, one_D=one_D, n_peak=n_peak))
+    x_vals2 = np.full(len(y_vals), x(n_R, one_0=one_0, one_D=one_D, n_peak=n_peak))
+    x_vals3 = np.full(len(y_vals), x(w_0*w_0, one_0=one_0, one_D=one_D, n_peak=n_peak))
+    x_vals4 = np.full(len(y_vals), x(w_0**2 - b0_mag**2, one_0=one_0, one_D=one_D, n_peak=n_peak))
     x_vals5 = np.full(len(y_vals), 30.0)
 
     # create figure
