@@ -478,8 +478,8 @@ def plot_xt(rundir, TITLE='', b0_mag=0.0, w_0 = 1.0, one_0 = 10, one_D= 790, n_p
     if (show_theory==True):
         plt.plot(x_vals, y_vals, 'c--', label='$\omega$$_L$ x-cutoff') #L-cutoff
         plt.plot(x_vals2, y_vals, 'b--', label='$\omega$$_R$ x-cutoff')#R-cutoff
-        plt.plot(x_vals3, y_vals, 'r--', label='$\omega$$_P$ o-cutoff')
-        plt.plot(x_vals4, y_vals, 'g--', label='$\omega$$_h$ o-resonance')
+        plt.plot(x_vals3, y_vals, 'r--', label='$\omega$$_P$')
+        plt.plot(x_vals4, y_vals, 'g--', label='$\omega$$_h$')
         plt.legend(loc=0)
     plt.show()
     
@@ -519,8 +519,8 @@ def plot_tx(rundir, TITLE='', b0_mag=0.0, plot_or=3, show_theory=False,
     if (show_theory==True):
         plt.plot(y_vals, x_vals, 'c--', label='$\omega$$_L$ x-cutoff') #L-cutoff
         plt.plot(y_vals, x_vals2, 'b--', label='$\omega$$_R$ x-cutoff')#R-cutoff
-        plt.plot(y_vals, x_vals3, 'r--', label='$\omega$$_P$ o-cutoff')
-        plt.plot(y_vals, x_vals4, 'g--', label='$\omega$$_h$ o-resonance')
+        plt.plot(y_vals, x_vals3, 'r--', label='$\omega$$_P$')
+        plt.plot(y_vals, x_vals4, 'g--', label='$\omega$$_h$')
         plt.legend(loc=0)
     if (show_cutoff==True):
         plt.plot(y_vals, x_vals5,'b', label='')
