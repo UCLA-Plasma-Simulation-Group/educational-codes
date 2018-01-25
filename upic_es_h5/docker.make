@@ -5,11 +5,11 @@ GOBJS = nullpgks2.o nullpgks1.o
 
 MPIFC = mpif90
 FC90 = mpif90
-FC77 = mpif90
+FC77 = mpif77
 CC = mpicc
 
-OPTS90 =  -O -fdefault-real-8
-OPTS77 =  -O -fdefault-real-8
+OPTS90 = -fopenmp -fdefault-real-8 -O
+OPTS77 = -fopenmp -fdefault-real-8 -O
 #OPTS90 = -r8 -DFORTRANSINGLEUNDERSCORE -O3
 #OPTS77 = -r8 -DFORTRANSINGLEUNDERSCORE -O3
 
@@ -23,7 +23,7 @@ MPIOBJS = nullLOG.o
 MPOBJS = MacMPxlf.o LnxMP.o
 
 HDF_DIR = /usr/local/
-H5_DIR = /usr/local/
+H5_DIR = /usr/lib/x86_64-linux-gnu/hdf5/openmpi/lib/
 SZ_DIR = /usr/local/
 
 INCPATH = -I$(H5_DIR)/include -L$(H5_DIR)/lib 
@@ -487,7 +487,7 @@ upic-es.o : upic-es.f ppush2mod.o prbpush2mod.o pfft2mod.o \
                pfield2mod.o pdiag2mod.o p2mod.o mp0mod.o h5lib_beps.o p2mod_jf.o \
                diag_jf.o ampere_jf.o ext_driver_jf.o hdf_write_jf.o \
                par_track_new_jf.o ppush2mod_jf.o pfield2mod_jf.o
-	$(FC77) $(OPTS77) $(MOPTS) $(INCPATH) -c -ffree-form upic-es.f
+	$(FC90) $(OPTS90) $(MOPTS) $(INCPATH) -c -ffree-form upic-es.f
 
 upic-es-arb.o : upic-es-arb.f ppush2mod.o prbpush2mod.o pfft2mod.o \
                pbpush2mod.o pbpush2lib.o mkdir_f_fxns.o \

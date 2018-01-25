@@ -1057,6 +1057,161 @@ c normalize kinetic energy
       ek = ek + .125*sum1
       return
       end
+
+c-----------------------------------------------------------------------
+      subroutine PGPUSH2_MAG(part,fxy,b0,npp,noff,qbm,dt,ek,nx,ny,idimp,
+     1npmax,nblok,nxv,nypmx,ipbc)
+c for 2d code, this subroutine updates particle co-ordinates and
+c velocities using leap-frog scheme in time and second-order spline
+c interpolation in space, with various boundary conditions,
+c for distributed data.
+c scalar version using guard cells, for distributed data
+c 80 flops/particle, 22 loads, 4 stores
+c input: all, output: part, ek
+c equations used are:
+c vx(t+dt/2) = vx(t-dt/2) + (q/m)*fx(x(t),y(t))*dt,
+c vy(t+dt/2) = vy(t-dt/2) + (q/m)*fy(x(t),y(t))*dt,
+c where q/m is charge/mass, and
+c x(t+dt) = x(t) + vx(t+dt/2)*dt, y(t+dt) = y(t) + vy(t+dt/2)*dt
+c fx(x(t),y(t)) and fy(x(t),y(t)) are approximated by interpolation from
+c the nearest grid points:
+c fx(x,y) = (.75-dy**2)*((.75-dx**2)*fx(n,m)+(.5*(.5+dx)**2)*fx(n+1,m)+
+c (.5*(.5-dx)**2)*fx(n-1,m)) + (.5*(.5+dy)**2)*((.75-dx**2)*fx(n,m+1)+
+c (.5*(.5+dx)**2)*fx(n+1,m+1)+(.5*(.5-dx)**2)*fx(n-1,m+1)) +
+c (.5*(.5-dy)**2)*((.75-dx**2)*fx(n,m-1)+(.5*(.5+dx)**2)*fx(n+1,m-1)+
+c (.5*(.5-dx)**2)*fx(n-1,m-1))
+c fy(x,y) = (.75-dy**2)*((.75-dx**2)*fy(n,m)+(.5*(.5+dx)**2)*fy(n+1,m)+
+c (.5*(.5-dx)**2)*fy(n-1,m)) + (.5*(.5+dy)**2)*((.75-dx**2)*fy(n,m+1)+
+c (.5*(.5+dx)**2)*fy(n+1,m+1)+(.5*(.5-dx)**2)*fy(n-1,m+1)) +
+c (.5*(.5-dy)**2)*((.75-dx**2)*fy(n,m-1)+(.5*(.5+dx)**2)*fy(n+1,m-1)+
+c (.5*(.5-dx)**2)*fy(n-1,m-1))
+c where n,m = nearest grid points and dx = x-n, dy = y-m
+c part(1,n,l) = position x of particle n in partition l
+c part(2,n,l) = position y of particle n in partition l
+c part(3,n,l) = velocity vx of particle n in partition l
+c part(4,n,l) = velocity vy of particle n in partition l
+c fxy(1,j+1,k,l) = x component of force/charge at grid (j,kk)
+c fxy(2,j+1,k,l) = y component of force/charge at grid (j,kk)
+c in other words, fxy are the convolutions of the electric field
+c over the particle shape, where kk = k + noff(l) - 1
+c npp(l) = number of particles in partition l
+c noff(l) = lowermost global gridpoint in particle partition l.
+c qbm = particle charge/mass ratio
+c dt = time interval between successive calculations
+c kinetic energy/mass at time t is also calculated, using
+c ek = .125*sum((vx(t+dt/2)+vx(t-dt/2))**2+(vy(t+dt/2)+vy(t-dt/2))**2)
+c nx/ny = system length in x/y direction
+c idimp = size of phase space = 4
+c npmax = maximum number of particles in each partition
+c nblok = number of particle partitions.
+c nxv = first dimension of field array, must be >= nx+3
+c nypmx = maximum size of particle partition, including guard cells.
+c ipbc = particle boundary condition = (0,1,2,3) =
+c (none,2d periodic,2d reflecting,mixed reflecting/periodic)
+      double precision sum1
+      dimension part(idimp,npmax,nblok)
+      dimension fxy(2,nxv,nypmx,nblok)
+      dimension npp(nblok), noff(nblok)
+c local variables
+
+      qtm = qbm*dt
+      qtmh = qtm*0.5
+
+      boris_t = b0*qtmh
+      boris_s = 2.0*boris_t/(1+boris_t*boris_t)
+      sum1 = 0.0d0
+c set boundary values
+      if (ipbc.eq.1) then
+         edgelx = 0.
+         edgerx = float(nx)
+      else if (ipbc.eq.2) then
+         edgelx = 1.
+         edgely = 1.
+         edgerx = float(nx-1)
+         edgery = float(ny-1)
+      else if (ipbc.eq.3) then
+         edgelx = 1.
+         edgerx = float(nx-1)
+      endif
+      do 20 l = 1, nblok
+      mnoff = noff(l) - 1
+      do 10 j = 1, npp(l)
+c find interpolation weights
+      nn = part(1,j,l) + .5
+      mm = part(2,j,l) + .5
+      dxp = part(1,j,l) - float(nn)
+      dyp = part(2,j,l) - float(mm)
+      nl = nn + 1
+      ml = mm - mnoff
+      amx = .75 - dxp*dxp
+      amy = .75 - dyp*dyp
+      nn = nl + 1
+      dxl = .5*(.5 - dxp)**2
+      np = nl + 2
+      dxp = .5*(.5 + dxp)**2
+      mm = ml + 1
+      dyl = .5*(.5 - dyp)**2
+      mp = ml + 2
+      dyp = .5*(.5 + dyp)**2
+c find acceleration
+      dx = amy*(dxl*fxy(1,nl,mm,l) + amx*fxy(1,nn,mm,l) + dxp*fxy(1,np,m
+     1m,l)) + dyl*(dxl*fxy(1,nl,ml,l) + amx*fxy(1,nn,ml,l) + dxp*fxy(1,n
+     2p,ml,l)) + dyp*(dxl*fxy(1,nl,mp,l) + amx*fxy(1,nn,mp,l) + dxp*fxy(
+     31,np,mp,l))
+      dy = amy*(dxl*fxy(2,nl,mm,l) + amx*fxy(2,nn,mm,l) + dxp*fxy(2,np,m
+     1m,l)) + dyl*(dxl*fxy(2,nl,ml,l) + amx*fxy(2,nn,ml,l) + dxp*fxy(2,n
+     2p,ml,l)) + dyp*(dxl*fxy(2,nl,mp,l) + amx*fxy(2,nn,mp,l) + dxp*fxy(
+     32,np,mp,l))
+c new velocity
+      vminusx = part(3,j,l) + qtmh*dx
+      vminusy = part(4,j,l) + qtmh*dy
+
+      vprimex = vminusx + vminusy * boris_t
+      vprimey = vminusy - vminuxx * boris_t
+
+      vplusx = vminusx + vprimey * boris_s
+      vplusy = vminusy - vprimex * boris_s
+
+      dx = vplusx + qtmh * dx
+      dy = vplusy + qtmh * dy
+
+c average kinetic energy
+      sum1 = sum1 + (dx + part(3,j,l))**2 + (dy + part(4,j,l))**2
+      part(3,j,l) = dx
+      part(4,j,l) = dy
+c new position
+      dx = part(1,j,l) + dx*dt
+      dy = part(2,j,l) + dy*dt
+c periodic boundary conditions
+      if (ipbc.eq.1) then
+         if (dx.lt.edgelx) dx = dx + edgerx
+         if (dx.ge.edgerx) dx = dx - edgerx
+c reflecting boundary conditions
+      else if (ipbc.eq.2) then
+         if ((dx.lt.edgelx).or.(dx.ge.edgerx)) then
+            dx = part(1,j,l)
+            part(3,j,l) = -part(3,j,l)
+         endif
+         if ((dy.lt.edgely).or.(dy.ge.edgery)) then
+            dy = part(2,j,l)
+            part(4,j,l) = -part(4,j,l)
+         endif
+c mixed reflecting/periodic boundary conditions
+      else if (ipbc.eq.3) then
+         if ((dx.lt.edgelx).or.(dx.ge.edgerx)) then
+            dx = part(1,j,l)
+            part(3,j,l) = -part(3,j,l)
+         endif
+      endif
+c set new position
+      part(1,j,l) = dx
+      part(2,j,l) = dy
+   10 continue
+   20 continue
+c normalize kinetic energy
+      ek = ek + .125*sum1
+      return
+      end
 c-----------------------------------------------------------------------
       subroutine PGSPUSH2(part,fxy,npp,noff,qbm,dt,ek,nx,ny,idimp,npmax,
      1nblok,nxv,nxyp,ipbc)
@@ -1259,6 +1414,243 @@ c normalize kinetic energy
       ek = ek + .125*sum1
       return
       end
+
+
+c-----------------------------------------------------------------------
+      subroutine PGSPUSH2_MAG(part,fxy,b0,npp,noff,qbm,dt,ek,nx,ny,idimp
+     1,npmax,nblok,nxv,nxyp,ipbc)
+c for 2d code, this subroutine updates particle co-ordinates and
+c velocities using leap-frog scheme in time and second-order spline
+c interpolation in space, with various boundary conditions,
+c for distributed data.
+c scalar version using guard cells, integer conversion precalculation,
+c and 1d addressing, for distributed data
+c cases 9-10 in v.k.decyk et al, computers in physics 10, 290 (1996).
+c 80 flops/particle, 22 loads, 4 stores
+c input: all, output: part, ek
+c equations used are:
+c vx(t+dt/2) = vx(t-dt/2) + (q/m)*fx(x(t),y(t))*dt,
+c vy(t+dt/2) = vy(t-dt/2) + (q/m)*fy(x(t),y(t))*dt,
+c where q/m is charge/mass, and
+c x(t+dt) = x(t) + vx(t+dt/2)*dt, y(t+dt) = y(t) + vy(t+dt/2)*dt
+c fx(x(t),y(t)) and fy(x(t),y(t)) are approximated by interpolation from
+c the nearest grid points:
+c fx(x,y) = (.75-dy**2)*((.75-dx**2)*fx(n,m)+(.5*(.5+dx)**2)*fx(n+1,m)+
+c (.5*(.5-dx)**2)*fx(n-1,m)) + (.5*(.5+dy)**2)*((.75-dx**2)*fx(n,m+1)+
+c (.5*(.5+dx)**2)*fx(n+1,m+1)+(.5*(.5-dx)**2)*fx(n-1,m+1)) +
+c (.5*(.5-dy)**2)*((.75-dx**2)*fx(n,m-1)+(.5*(.5+dx)**2)*fx(n+1,m-1)+
+c (.5*(.5-dx)**2)*fx(n-1,m-1))
+c fy(x,y) = (.75-dy**2)*((.75-dx**2)*fy(n,m)+(.5*(.5+dx)**2)*fy(n+1,m)+
+c (.5*(.5-dx)**2)*fy(n-1,m)) + (.5*(.5+dy)**2)*((.75-dx**2)*fy(n,m+1)+
+c (.5*(.5+dx)**2)*fy(n+1,m+1)+(.5*(.5-dx)**2)*fy(n-1,m+1)) +
+c (.5*(.5-dy)**2)*((.75-dx**2)*fy(n,m-1)+(.5*(.5+dx)**2)*fy(n+1,m-1)+
+c (.5*(.5-dx)**2)*fy(n-1,m-1))
+c where n,m = nearest grid points and dx = x-n, dy = y-m
+c part(1,n,l) = position x of particle n in partition l
+c part(2,n,l) = position y of particle n in partition l
+c part(3,n,l) = velocity vx of particle n in partition l
+c part(4,n,l) = velocity vy of particle n in partition l
+c fxy(1,j+1,k,l) = x component of force/charge at grid (j,kk)
+c fxy(2,j+1,k,l) = y component of force/charge at grid (j,kk)
+c in other words, fxy are the convolutions of the electric field
+c over the particle shape, where kk = k + noff(l) - 1
+c npp(l) = number of particles in partition l
+c noff(l) = lowermost global gridpoint in particle partition l.
+c qbm = particle charge/mass ratio
+c dt = time interval between successive calculations
+c kinetic energy/mass at time t is also calculated, using
+c ek = .125*sum((vx(t+dt/2)+vx(t-dt/2))**2+(vy(t+dt/2)+vy(t-dt/2))**2)
+c nx/ny = system length in x/y direction
+c idimp = size of phase space = 4
+c npmax = maximum number of particles in each partition
+c nblok = number of particle partitions.
+c nxv = second virtual dimension of field array, must be >= nx+3
+c nxyp = second actual dimension of field array, must be >= nxv*nypmx
+c ipbc = particle boundary condition = (0,1,2,3) =
+c (none,2d periodic,2d reflecting,mixed reflecting/periodic)
+      double precision sum1
+      dimension part(idimp,npmax,nblok)
+      dimension fxy(2,nxyp,nblok)
+      dimension npp(nblok), noff(nblok)
+      real b0
+
+c local variables
+
+      real qtmh
+      real boris_s,boris_t
+      real vminusx,vminusy
+      real vprimex,vprimey
+      real vplusx,vplusy
+
+      qtm = qbm*dt
+      qtmh = qtm*0.5
+
+      boris_t = b0*qtmh
+      boris_s = 2.0*boris_t/(1+boris_t*boris_t)
+      sum1 = 0.0d0
+c set boundary values
+      if (ipbc.eq.1) then
+         edgelx = 0.
+         edgerx = float(nx)
+      else if (ipbc.eq.2) then
+         edgelx = 1.
+         edgely = 1.
+         edgerx = float(nx-1)
+         edgery = float(ny-1)
+      else if (ipbc.eq.3) then
+         edgelx = 1.
+         edgerx = float(nx-1)
+      endif
+      do 20 l = 1, nblok
+      if (npp(l).lt.1) go to 20
+      mnoff = noff(l)
+c begin first particle
+      nnn = part(1,1,l) + .5
+      mmn = part(2,1,l) + .5
+      dxn = part(1,1,l) - float(nnn)
+      dyn = part(2,1,l) - float(mmn)
+      mmn = mmn - mnoff
+      nop1 = npp(l) - 1
+      do 10 j = 1, nop1
+c find interpolation weights
+      nn = nnn + 1
+      mm = nxv*mmn
+      nnn = part(1,j+1,l) + .5
+      mmn = part(2,j+1,l) + .5
+      dxp = dxn
+      dyp = dyn
+      dxn = part(1,j+1,l) - float(nnn)
+      dyn = part(2,j+1,l) - float(mmn)
+      ml = mm + nn
+      amx = .75 - dxp*dxp
+      amy = .75 - dyp*dyp
+      mn = ml + nxv
+      dxl = .5*(.5 - dxp)**2
+      dxp = .5*(.5 + dxp)**2
+      mp = mn + nxv
+      dyl = .5*(.5 - dyp)**2
+      dyp = .5*(.5 + dyp)**2
+      mmn = mmn - mnoff
+c find acceleration
+      dx = amy*(dxl*fxy(1,mn,l) + amx*fxy(1,mn+1,l) + dxp*fxy(1,mn+2,l))
+     1+ dyl*(dxl*fxy(1,ml,l) + amx*fxy(1,ml+1,l) + dxp*fxy(1,ml+2,l)) + 
+     2dyp*(dxl*fxy(1,mp,l) + amx*fxy(1,mp+1,l) + dxp*fxy(1,mp+2,l))
+      dy = amy*(dxl*fxy(2,mn,l) + amx*fxy(2,mn+1,l) + dxp*fxy(2,mn+2,l))
+     1+ dyl*(dxl*fxy(2,ml,l) + amx*fxy(2,ml+1,l) + dxp*fxy(2,ml+2,l)) + 
+     2dyp*(dxl*fxy(2,mp,l) + amx*fxy(2,mp+1,l) + dxp*fxy(2,mp+2,l))
+c new velocity
+      vminusx = part(3,j,l) + qtmh*dx
+      vminusy = part(4,j,l) + qtmh*dy
+
+      vprimex = vminusx + vminusy * boris_t
+      vprimey = vminusy - vminuxx * boris_t
+
+      vplusx = vminusx + vprimey * boris_s
+      vplusy = vminusy - vprimex * boris_s
+
+      dx = vplusx + qtmh * dx
+      dy = vplusy + qtmh * dy
+c average kinetic energy
+      sum1 = sum1 + (dx + part(3,j,l))**2 + (dy + part(4,j,l))**2
+      part(3,j,l) = dx
+      part(4,j,l) = dy
+c new position
+      dx = part(1,j,l) + dx*dt
+      dy = part(2,j,l) + dy*dt
+c periodic boundary conditions
+      if (ipbc.eq.1) then
+         if (dx.lt.edgelx) dx = dx + edgerx
+         if (dx.ge.edgerx) dx = dx - edgerx
+c reflecting boundary conditions
+      else if (ipbc.eq.2) then
+         if ((dx.lt.edgelx).or.(dx.ge.edgerx)) then
+            dx = part(1,j,l)
+            part(3,j,l) = -part(3,j,l)
+         endif
+         if ((dy.lt.edgely).or.(dy.ge.edgery)) then
+            dy = part(2,j,l)
+            part(4,j,l) = -part(4,j,l)
+         endif
+c mixed reflecting/periodic boundary conditions
+      else if (ipbc.eq.3) then
+         if ((dx.lt.edgelx).or.(dx.ge.edgerx)) then
+            dx = part(1,j,l)
+            part(3,j,l) = -part(3,j,l)
+         endif
+      endif
+c set new position
+      part(1,j,l) = dx
+      part(2,j,l) = dy
+   10 continue
+      nop = npp(l)
+c push last particle
+      nn = nnn + 1
+      mm = nxv*mmn
+      ml = mm + nn
+      amx = .75 - dxn*dxn
+      amy = .75 - dyn*dyn
+      mn = ml + nxv
+      dxl = .5*(.5 - dxn)**2
+      dxp = .5*(.5 + dxn)**2
+      mp = mn + nxv
+      dyl = .5*(.5 - dyn)**2
+      dyp = .5*(.5 + dyn)**2
+c find acceleration
+      dx = amy*(dxl*fxy(1,mn,l) + amx*fxy(1,mn+1,l) + dxp*fxy(1,mn+2,l))
+     1+ dyl*(dxl*fxy(1,ml,l) + amx*fxy(1,ml+1,l) + dxp*fxy(1,ml+2,l)) + 
+     2dyp*(dxl*fxy(1,mp,l) + amx*fxy(1,mp+1,l) + dxp*fxy(1,mp+2,l))
+      dy = amy*(dxl*fxy(2,mn,l) + amx*fxy(2,mn+1,l) + dxp*fxy(2,mn+2,l))
+     1+ dyl*(dxl*fxy(2,ml,l) + amx*fxy(2,ml+1,l) + dxp*fxy(2,ml+2,l)) + 
+     2dyp*(dxl*fxy(2,mp,l) + amx*fxy(2,mp+1,l) + dxp*fxy(2,mp+2,l))
+c new velocity
+      vminusx = part(3,nop,l) + qtmh*dx
+      vminusy = part(4,nop,l) + qtmh*dy
+
+      vprimex = vminusx + vminusy * boris_t
+      vprimey = vminusy - vminuxx * boris_t
+
+      vplusx = vminusx + vprimey * boris_s
+      vplusy = vminusy - vprimex * boris_s
+
+      dx = vplusx + qtmh * dx
+      dy = vplusy + qtmh * dy
+c average kinetic energy
+      sum1 = sum1 + (dx + part(3,nop,l))**2 + (dy + part(4,nop,l))**2
+      part(3,nop,l) = dx
+      part(4,nop,l) = dy
+c new position
+      dx = part(1,nop,l) + dx*dt
+      dy = part(2,nop,l) + dy*dt
+c periodic boundary conditions
+      if (ipbc.eq.1) then
+         if (dx.lt.edgelx) dx = dx + edgerx
+         if (dx.ge.edgerx) dx = dx - edgerx
+c reflecting boundary conditions
+      else if (ipbc.eq.2) then
+         if ((dx.lt.edgelx).or.(dx.ge.edgerx)) then
+            dx = part(1,nop,l)
+            part(3,nop,l) = -part(3,nop,l)
+         endif
+         if ((dy.lt.edgely).or.(dy.ge.edgery)) then
+            dy = part(2,nop,l)
+            part(4,nop,l) = -part(4,nop,l)
+         endif
+c mixed reflecting/periodic boundary conditions
+      else if (ipbc.eq.3) then
+         if ((dx.lt.edgelx).or.(dx.ge.edgerx)) then
+            dx = part(1,nop,l)
+            part(3,nop,l) = -part(3,nop,l)
+         endif
+      endif
+c set new position
+      part(1,nop,l) = dx
+      part(2,nop,l) = dy
+   20 continue
+c normalize kinetic energy
+      ek = ek + .125*sum1
+      return
+      end
+
 c-----------------------------------------------------------------------
       subroutine PPUSH2L(part,fx,fy,npp,noff,qbm,dt,ek,nx,idimp,npmax,nb
      1lok,nxv,nypmx)
@@ -1473,6 +1865,154 @@ c normalize kinetic energy
       return
       end
 c-----------------------------------------------------------------------
+
+      subroutine PGPUSH2L_MAG(part,fxy,b0,npp,noff,qbm,dt,ek,nx,ny,idimp
+     1,npmax,nblok,nxv,nypmx,ipbc)
+c for 2d code, this subroutine updates particle co-ordinates and
+c velocities using leap-frog scheme in time and first-order linear
+c interpolation in space, with various boundary conditions,
+c for distributed data.
+c scalar version using guard cells, for distributed data
+c 42 flops/particle, 12 loads, 4 stores
+c input: all, output: part, ek
+c equations used are:
+c vx(t+dt/2) = vx(t-dt/2) + (q/m)*fx(x(t),y(t))*dt,
+c vy(t+dt/2) = vy(t-dt/2) + (q/m)*fy(x(t),y(t))*dt,
+c where q/m is charge/mass, and
+c x(t+dt) = x(t) + vx(t+dt/2)*dt, y(t+dt) = y(t) + vy(t+dt/2)*dt
+c fx(x(t),y(t)) and fy(x(t),y(t)) are approximated by interpolation from
+c the nearest grid points:
+c fx(x,y) = (1-dy)*((1-dx)*fx(n,m)+dx*fx(n+1,m)) + dy*((1-dx)*fx(n,m+1)
+c    + dx*fx(n+1,m+1))
+c fy(x,y) = (1-dy)*((1-dx)*fy(n,m)+dx*fy(n+1,m)) + dy*((1-dx)*fy(n,m+1)
+c    + dx*fy(n+1,m+1))
+c where n,m = leftmost grid points and dx = x-n, dy = y-m
+c part(1,n,l) = position x of particle n in partition l
+c part(2,n,l) = position y of particle n in partition l
+c part(3,n,l) = velocity vx of particle n in partition l
+c part(4,n,l) = velocity vy of particle n in partition l
+c fxy(1,j,k,l) = x component of force/charge at grid (j,kk)
+c fxy(2,j,k,l) = y component of force/charge at grid (j,kk)
+c in other words, fxy are the convolutions of the electric field
+c over the particle shape, where kk = k + noff(l) - 1
+c npp(l) = number of particles in partition l
+c noff(l) = lowermost global gridpoint in particle partition l.
+c qbm = particle charge/mass
+c dt = time interval between successive calculations
+c kinetic energy/mass at time t is also calculated, using
+c ek = .125*sum((vx(t+dt/2)+vx(t-dt/2))**2+(vy(t+dt/2)+vy(t-dt/2))**2)
+c nx/ny = system length in x/y direction
+c idimp = size of phase space = 4
+c npmax = maximum number of particles in each partition
+c nblok = number of particle partitions.
+c nxv = first dimension of field array, must be >= nx+1
+c nypmx = maximum size of particle partition, including guard cells.
+c ipbc = particle boundary condition = (0,1,2,3) =
+c (none,2d periodic,2d reflecting,mixed reflecting/periodic)
+      double precision sum1
+      dimension part(idimp,npmax,nblok)
+      dimension fxy(2,nxv,nypmx,nblok)
+      dimension npp(nblok), noff(nblok)
+
+      real b0
+
+c local variables
+      real qtmh
+      real boris_s,boris_t
+      real vminusx,vminusy
+      real vprimex,vprimey
+      real vplusx,vplusy
+
+      qtm = qbm*dt
+      qtmh = qtm*0.5
+
+      boris_t = b0*qtmh
+      boris_s = 2.0*boris_t/(1+boris_t*boris_t)
+
+      sum1 = 0.0d0
+c set boundary values
+      if (ipbc.eq.1) then
+         edgelx = 0.
+         edgerx = float(nx)
+      else if (ipbc.eq.2) then
+         edgelx = 1.
+         edgely = 1.
+         edgerx = float(nx-1)
+         edgery = float(ny-1)
+      else if (ipbc.eq.3) then
+         edgelx = 1.
+         edgerx = float(nx-1)
+      endif
+      do 20 l = 1, nblok
+      mnoff = noff(l) - 1
+      do 10 j = 1, npp(l)
+c find interpolation weights
+      nn = part(1,j,l)
+      mm = part(2,j,l)
+      dxp = part(1,j,l) - float(nn)
+      dyp = part(2,j,l) - float(mm)
+      nn = nn + 1
+      mm = mm - mnoff
+      amx = 1. - dxp
+      mp = mm + 1
+      amy = 1. - dyp
+      np = nn + 1
+c find acceleration
+      dx = dyp*(dxp*fxy(1,np,mp,l) + amx*fxy(1,nn,mp,l)) + amy*(dxp*fxy(
+     11,np,mm,l) + amx*fxy(1,nn,mm,l))
+      dy = dyp*(dxp*fxy(2,np,mp,l) + amx*fxy(2,nn,mp,l)) + amy*(dxp*fxy(
+     12,np,mm,l) + amx*fxy(2,nn,mm,l))
+c new velocity
+      vminusx = part(3,j,l) + qtmh*dx
+      vminusy = part(4,j,l) + qtmh*dy
+
+      vprimex = vminusx + vminusy * boris_t
+      vprimey = vminusy - vminuxx * boris_t
+
+      vplusx = vminusx + vprimey * boris_s
+      vplusy = vminusy - vprimex * boris_s
+
+      dx = vplusx + qtmh * dx
+      dy = vplusy + qtmh * dy
+c average kinetic energy
+      sum1 = sum1 + (dx + part(3,j,l))**2 + (dy + part(4,j,l))**2
+      part(3,j,l) = dx
+      part(4,j,l) = dy
+c new position
+      dx = part(1,j,l) + dx*dt
+      dy = part(2,j,l) + dy*dt
+c periodic boundary conditions
+      if (ipbc.eq.1) then
+         if (dx.lt.edgelx) dx = dx + edgerx
+         if (dx.ge.edgerx) dx = dx - edgerx
+c reflecting boundary conditions
+      else if (ipbc.eq.2) then
+         if ((dx.lt.edgelx).or.(dx.ge.edgerx)) then
+            dx = part(1,j,l)
+            part(3,j,l) = -part(3,j,l)
+         endif
+         if ((dy.lt.edgely).or.(dy.ge.edgery)) then
+            dy = part(2,j,l)
+            part(4,j,l) = -part(4,j,l)
+         endif
+c mixed reflecting/periodic boundary conditions
+      else if (ipbc.eq.3) then
+         if ((dx.lt.edgelx).or.(dx.ge.edgerx)) then
+            dx = part(1,j,l)
+            part(3,j,l) = -part(3,j,l)
+         endif
+      endif
+c set new position
+      part(1,j,l) = dx
+      part(2,j,l) = dy
+   10 continue
+   20 continue
+c normalize kinetic energy
+      ek = ek + .125*sum1
+      return
+      end
+c-----------------------------------------------------------------------
+
       subroutine PGSPUSH2L(part,fxy,npp,noff,qbm,dt,ek,nx,ny,idimp,npmax
      1,nblok,nxv,nxyp,ipbc)
 c for 2d code, this subroutine updates particle co-ordinates and
@@ -1618,6 +2158,223 @@ c find acceleration
 c new velocity
       dx = part(3,nop,l) + qtm*dx
       dy = part(4,nop,l) + qtm*dy
+c average kinetic energy
+      sum1 = sum1 + (dx + part(3,nop,l))**2 + (dy + part(4,nop,l))**2
+      part(3,nop,l) = dx
+      part(4,nop,l) = dy
+c new position
+      dx = part(1,nop,l) + dx*dt
+      dy = part(2,nop,l) + dy*dt
+c periodic boundary conditions
+      if (ipbc.eq.1) then
+         if (dx.lt.edgelx) dx = dx + edgerx
+         if (dx.ge.edgerx) dx = dx - edgerx
+c reflecting boundary conditions
+      else if (ipbc.eq.2) then
+         if ((dx.lt.edgelx).or.(dx.ge.edgerx)) then
+            dx = part(1,nop,l)
+            part(3,nop,l) = -part(3,nop,l)
+         endif
+         if ((dy.lt.edgely).or.(dy.ge.edgery)) then
+            dy = part(2,nop,l)
+            part(4,nop,l) = -part(4,nop,l)
+         endif
+c mixed reflecting/periodic boundary conditions
+      else if (ipbc.eq.3) then
+         if ((dx.lt.edgelx).or.(dx.ge.edgerx)) then
+            dx = part(1,nop,l)
+            part(3,nop,l) = -part(3,nop,l)
+         endif
+      endif
+c set new position
+      part(1,nop,l) = dx
+      part(2,nop,l) = dy
+   20 continue
+c normalize kinetic energy
+      ek = ek + .125*sum1
+      return
+      end
+
+c-----------------------------------------------------------------------
+      subroutine PGSPUSH2L_MAG(part,fxy,b0,npp,noff,qbm,dt,ek,nx,ny,idim
+     1p,npmax,nblok,nxv,nxyp,ipbc)
+c for 2d code, this subroutine updates particle co-ordinates and
+c velocities using leap-frog scheme in time and first-order linear
+c interpolation in space, with various boundary conditions,
+c for distributed data.
+c scalar version using guard cells, integer conversion precalculation,
+c and 1d addressing, for distributed data
+c cases 9-10 in v.k.decyk et al, computers in physics 10, 290 (1996)
+c 42 flops/particle, 12 loads, 4 stores
+c input: all, output: part, ek
+c equations used are:
+c vx(t+dt/2) = vx(t-dt/2) + (q/m)*fx(x(t),y(t))*dt,
+c vy(t+dt/2) = vy(t-dt/2) + (q/m)*fy(x(t),y(t))*dt,
+c where q/m is charge/mass, and
+c x(t+dt) = x(t) + vx(t+dt/2)*dt, y(t+dt) = y(t) + vy(t+dt/2)*dt
+c fx(x(t),y(t)) and fy(x(t),y(t)) are approximated by interpolation from
+c the nearest grid points:
+c fx(x,y) = (1-dy)*((1-dx)*fx(n,m)+dx*fx(n+1,m)) + dy*((1-dx)*fx(n,m+1)
+c    + dx*fx(n+1,m+1))
+c fy(x,y) = (1-dy)*((1-dx)*fy(n,m)+dx*fy(n+1,m)) + dy*((1-dx)*fy(n,m+1)
+c    + dx*fy(n+1,m+1))
+c where n,m = leftmost grid points and dx = x-n, dy = y-m
+c part(1,n,l) = position x of particle n in partition l
+c part(2,n,l) = position y of particle n in partition l
+c part(3,n,l) = velocity vx of particle n in partition l
+c part(4,n,l) = velocity vy of particle n in partition l
+c fxy(1,j,k,l) = x component of force/charge at grid (j,kk)
+c fxy(2,j,k,l) = y component of force/charge at grid (j,kk)
+c in other words, fxy are the convolutions of the electric field
+c over the particle shape, where kk = k + noff(l) - 1
+c npp(l) = number of particles in partition l
+c noff(l) = lowermost global gridpoint in particle partition l.
+c qbm = particle charge/mass
+c dt = time interval between successive calculations
+c kinetic energy/mass at time t is also calculated, using
+c ek = .125*sum((vx(t+dt/2)+vx(t-dt/2))**2+(vy(t+dt/2)+vy(t-dt/2))**2)
+c nx/ny = system length in x/y direction
+c idimp = size of phase space = 4
+c npmax = maximum number of particles in each partition
+c nblok = number of particle partitions.
+c nxv = second virtual dimension of field array, must be >= nx+1
+c nxyp = second actual dimension of field array, must be >= nxv*nypmx
+c ipbc = particle boundary condition = (0,1,2,3) =
+c (none,2d periodic,2d reflecting,mixed reflecting/periodic)
+      double precision sum1
+      dimension part(idimp,npmax,nblok)
+      dimension fxy(2,nxyp,nblok)
+      dimension npp(nblok), noff(nblok)
+      real b0
+
+c local variables
+      real qtmh
+      real boris_s,boris_t
+      real vminusx,vminusy
+      real vprimex,vprimey
+      real vplusx,vplusy
+
+      qtm = qbm*dt
+      qtmh = qtm*0.5
+
+      boris_t = b0*qtmh
+      boris_s = 2.0*boris_t/(1+boris_t*boris_t)
+      sum1 = 0.0d0
+c set boundary values
+      if (ipbc.eq.1) then
+         edgelx = 0.
+         edgerx = float(nx)
+      else if (ipbc.eq.2) then
+         edgelx = 1.
+         edgely = 1.
+         edgerx = float(nx-1)
+         edgery = float(ny-1)
+      else if (ipbc.eq.3) then
+         edgelx = 1.
+         edgerx = float(nx-1)
+      endif
+      do 20 l = 1, nblok
+      if (npp(l).lt.1) go to 20
+      mnoff = noff(l)
+c begin first particle
+      nnn = part(1,1,l)
+      mmn = part(2,1,l)
+      dxn = part(1,1,l) - float(nnn)
+      dyn = part(2,1,l) - float(mmn)
+      mmn = mmn - mnoff
+      nop1 = npp(l) - 1
+      do 10 j = 1, nop1
+c find interpolation weights
+      nn = nnn + 1
+      mm = nxv*mmn
+      nnn = part(1,j+1,l)
+      mmn = part(2,j+1,l)
+      dxp = dxn
+      dyp = dyn
+      dxn = part(1,j+1,l) - float(nnn)
+      dyn = part(2,j+1,l) - float(mmn)
+      mm = mm + nn
+      amx = 1. - dxp
+      mp = mm + nxv
+      amy = 1. - dyp
+      mmn = mmn - mnoff
+c find acceleration
+      dx = dyp*(dxp*fxy(1,mp+1,l) + amx*fxy(1,mp,l)) + amy*(dxp*fxy(1,mm
+     1+1,l) + amx*fxy(1,mm,l))
+      dy = dyp*(dxp*fxy(2,mp+1,l) + amx*fxy(2,mp,l)) + amy*(dxp*fxy(2,mm
+     1+1,l) + amx*fxy(2,mm,l))
+c new velocity
+      vminusx = part(3,j,l) + qtmh*dx
+      vminusy = part(4,j,l) + qtmh*dy
+
+      vprimex = vminusx + vminusy * boris_t
+      vprimey = vminusy - vminuxx * boris_t
+
+      vplusx = vminusx + vprimey * boris_s
+      vplusy = vminusy - vprimex * boris_s
+
+      dx = vplusx + qtmh * dx
+      dy = vplusy + qtmh * dy
+
+c average kinetic energy
+      sum1 = sum1 + (dx + part(3,j,l))**2 + (dy + part(4,j,l))**2
+      part(3,j,l) = dx
+      part(4,j,l) = dy
+c new position
+      dx = part(1,j,l) + dx*dt
+      dy = part(2,j,l) + dy*dt
+c periodic boundary conditions
+      if (ipbc.eq.1) then
+         if (dx.lt.edgelx) dx = dx + edgerx
+         if (dx.ge.edgerx) dx = dx - edgerx
+c reflecting boundary conditions
+      else if (ipbc.eq.2) then
+         if ((dx.lt.edgelx).or.(dx.ge.edgerx)) then
+            dx = part(1,j,l)
+            part(3,j,l) = -part(3,j,l)
+         endif
+         if ((dy.lt.edgely).or.(dy.ge.edgery)) then
+            dy = part(2,j,l)
+            part(4,j,l) = -part(4,j,l)
+         endif
+c mixed reflecting/periodic boundary conditions
+      else if (ipbc.eq.3) then
+         if ((dx.lt.edgelx).or.(dx.ge.edgerx)) then
+            dx = part(1,j,l)
+            part(3,j,l) = -part(3,j,l)
+         endif
+      endif
+c set new position
+      part(1,j,l) = dx
+      part(2,j,l) = dy
+   10 continue
+      nop = npp(l)
+c push last particle
+      nn = nnn + 1
+      mm = nxv*mmn
+      mm = mm + nn
+      amx = 1. - dxn
+      mp = mm + nxv
+      amy = 1. - dyn
+c find acceleration
+      dx = dyn*(dxn*fxy(1,mp+1,l) + amx*fxy(1,mp,l)) + amy*(dxn*fxy(1,mm
+     1+1,l) + amx*fxy(1,mm,l))
+      dy = dyn*(dxn*fxy(2,mp+1,l) + amx*fxy(2,mp,l)) + amy*(dxn*fxy(2,mm
+     1+1,l) + amx*fxy(2,mm,l))
+c new velocity
+
+c new velocity
+      vminusx = part(3,nop,l) + qtmh*dx
+      vminusy = part(4,nop,l) + qtmh*dy
+
+      vprimex = vminusx + vminusy * boris_t
+      vprimey = vminusy - vminuxx * boris_t
+
+      vplusx = vminusx + vprimey * boris_s
+      vplusy = vminusy - vprimex * boris_s
+
+      dx = vplusx + qtmh * dx
+      dy = vplusy + qtmh * dy
 c average kinetic energy
       sum1 = sum1 + (dx + part(3,nop,l))**2 + (dy + part(4,nop,l))**2
       part(3,nop,l) = dx

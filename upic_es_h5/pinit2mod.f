@@ -39,6 +39,7 @@
       public :: nerec, fename
       public :: waterbag,supergauss4,supergauss5
       public :: nensemble
+      public :: b0
 !
 ! Namelist Input
       save
@@ -174,6 +175,9 @@
 !             for ensemble averaging (default is 0)
       integer :: nensemble = 0
 
+! b0 --> uniform magnetic field
+      real b0
+
 ! define namelist
       namelist /pinput2/ idrun, idrun0, indx, indy, npx, npy, npxb, npyb&
      &, inorder, popt, dopt, djopt, nustrt, ntr, ntw, ntp, ntd, nta, ntv&
@@ -186,7 +190,7 @@
      &ionoff, nsrand, ndprof, ampdx, scaledx, shiftdx, ampdy, scaledy,  &
      &shiftdy, nsrandi, ndprofi, ampdxi, scaledxi, shiftdxi, ampdyi,    &
      &scaledyi, shiftdyi, modesxd, modesyd, modesxp, modesyp, modesxa,  &
-     &modesya, modesxe, modesye, imbalance, mpimon, nensemble
+     &modesya, modesxe, modesye, imbalance, mpimon, nensemble,b0
 !
 ! t0 = initial time value
 ! ceng = energy normalization

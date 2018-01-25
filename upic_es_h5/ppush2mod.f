@@ -14,6 +14,7 @@
       public :: LINEAR, QUADRATIC, STANDARD, LOOKAHEAD, VECTOR
       public :: wtimer
       public :: dpost, push, sortp, countp, prmove, pushzf, gcjpost
+      public :: push_mag
       public :: initmomt2, premoment2, primoment2
 !
 ! define interface to original Fortran77 procedures
@@ -309,6 +310,10 @@
       interface push
          module procedure ipgpush2
       end interface
+
+      interface push_mag
+         module procedure ipgpush2_mag
+      end interface
 !
       interface pushzf
          module procedure ippush2zf
@@ -432,6 +437,53 @@
          call wtimer(tp,dtime)
          tpush = tpush + tp
          end subroutine ipgpush2
+!
+!
+         subroutine ipgpush2_mag(part,fxy,b0,npp,noff,qbm,dt,ek,tpush,nx&
+     &,ny,ipbc,inorder,popt)
+! push particles with 2d electrostatic fields, 1d partition
+         implicit none
+         integer :: nx, ny, ipbc
+         integer, optional :: inorder, popt
+         real :: qbm, dt, ek, tpush
+         real, dimension(:,:,:), pointer :: part
+         real, dimension(:,:,:,:), pointer :: fxy
+	 real, intent(in) :: b0
+         integer, dimension(:), pointer :: npp, noff
+! local data
+         integer :: idimp, npmax, nblok, nxv, nypmx, nxyp, order, opt
+         real :: tp
+         double precision :: dtime
+         idimp = size(part,1); npmax = size(part,2)
+         nblok = size(part,3)
+         nxv = size(fxy,2); nypmx = size(fxy,3); nxyp = nxv*nypmx
+         order = QUADRATIC
+         if (present(inorder)) order = inorder
+         opt = STANDARD
+         if (present(popt)) opt = popt
+! initialize timer
+         call wtimer(tp,dtime,-1)
+         if (order==LINEAR) then
+            if (opt==LOOKAHEAD) then
+               call PGSPUSH2L_MAG(part,fxy,b0,npp,noff,qbm,dt,ek,nx,ny,i&
+     &dimp,npmax,nblok,nxv,nxyp,ipbc)
+            else
+               call PGPUSH2L_MAG(part,fxy,b0,npp,noff,qbm,dt,ek,nx,ny,id&
+     &imp,npmax,nblok,nxv,nypmx,ipbc)
+            endif
+         else
+            if (opt==LOOKAHEAD) then
+               call PGSPUSH2_MAG(part,fxy,b0,npp,noff,qbm,dt,ek,nx,ny,id&
+     &imp,npmax,nblok,nxv,nxyp,ipbc)
+            else
+               call PGPUSH2_MAG(part,fxy,b0,npp,noff,qbm,dt,ek,nx,ny,idi&
+     &mp,npmax,nblok,nxv,nypmx,ipbc)
+            endif
+         endif
+! record time
+         call wtimer(tp,dtime)
+         tpush = tpush + tp
+         end subroutine ipgpush2_mag
 !
          subroutine ipsortp2y(part,pt,ip,npp,noff,nyp,npic,tsort,inorder&
      &)
