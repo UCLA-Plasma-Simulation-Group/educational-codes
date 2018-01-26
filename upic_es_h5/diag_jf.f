@@ -19,7 +19,7 @@
       public :: idrun, indx, indy, ntp!, modesx, modesy
       public :: tend, dt
       public :: ntfield
-      public :: write_jf_diag_file,phase_space_vxy_vs_x,write_Eoft_aty,mkdir_structure
+      public :: write_jf_diag_file,write_Eoft_aty,mkdir_structure
       public :: phase_slices_x,phase_slices_y,phase_space_vxy_vs_x_and_y
 		! name convention is xx mean vx vs x, xy means vx vs y
      	public :: nlines
@@ -29,7 +29,8 @@
       public :: kivx_loc,kivy_loc, vEx_loc,vEy_loc
       public :: set_part_array_vdotE,n_jE_u_poynt
       public :: phase_vx_vy
-      public :: phase_space_vxy_vs_y
+      public :: phase_space_vxy_vs_x,phase_space_vxy_vs_y
+      public :: phase_space_vxy_vs_x_ion, phase_space_vxy_vs_y_ion
       public :: get_ene_in_driver_region,calc_ene_three_regions,get_Py_sumover_x,get_1D_sumover_x
       public :: get_2D_sumover_x,get_2D_sumover_x_xcomp
       public :: bin_Ex_and_Ey
@@ -86,6 +87,7 @@
 					
 						if (ntden .ne. 0) then
 							call mkdir_f('./DIAG/Den'//char(0),ierr)
+							call mkdir_f('./DIAG/IDen'//char(0),ierr)
 						endif
 						if (ntfield .ne. 0) then
 							call mkdir_f('./DIAG/Ex'//char(0),ierr)
@@ -181,9 +183,11 @@
 
 						if (nphxx .ne. 0) then
 							call mkdir_f('./DIAG/Vx_x'//char(0),ierr)
+							call mkdir_f('./DIAG/IVx_x'//char(0),ierr)
 						endif
 						if (nphyx .ne. 0) then
 							call mkdir_f('./DIAG/Vy_x'//char(0),ierr)
+                                                        call mkdir_f('./DIAG/IVy_x'//char(0),ierr)
 						endif
 						if (nphxy .ne. 0) then
 							call mkdir_f('./DIAG/Vx_y'//char(0),ierr)
@@ -236,10 +240,13 @@
       			filename='diagparams_jf'
       			funitnum = get_funit(20)
       			open(unit=funitnum,file=trim(filename),form='unformatted',status=&
-     &'replace')
+      &                 'replace')
+!234567
 					write (funitnum) idrun,indx,indy,ntfield,psolve,tend,dt,npx,npy,&
 						&fvxmax,fvymax,nphbx,nphby,nphxx,nphyx,ntlines,nlines,linepos,phsl_x_pos,&
-						&phsl_x_thick,ntphsl_x,num_phsl_x,ntden,ntpene,ntj,ntvdotE
+						&phsl_x_thick,ntphsl_x,num_phsl_x,ntden,ntpene,ntj,ntvdotE, &
+                                                &fvxmax_ion,fvymax_ion
+
 				endif
 			end subroutine write_jf_diag_file
 			
@@ -941,6 +948,7 @@
 				enddo
 			end subroutine vdotE
 
+! PHASE SPACE  -- > electrons
 			! This calculates the phase space at a given time for 1 direction
 			! specified by xory(x=1,y=2),nxy is nx or ny depending on xory
 			! fvxy = phase space for x or y
@@ -1134,6 +1142,201 @@
 				endif
 
 			end subroutine phase_space_vxy_vs_y
+			
+! PHASE SPACE --> ions
+			! This calculates the phase space at a given time for 1 direction
+			! specified by xory(x=1,y=2),nxy is nx or ny depending on xory
+			! fvxy = phase space for x or y
+			subroutine phase_space_vxy_vs_x_ion(part,fvxy,xory,nxy,npp,time,it,nblok,idproc)
+				implicit none
+				integer :: nblok,xory,nxy,idproc
+	      	real,dimension(:,:,:) :: part
+				integer :: it
+				real :: time
+				real,dimension(:,:,:),pointer :: fvxy
+				real,dimension(:,:,:),pointer :: sfieldtemp
+				integer,dimension(nblok) :: npp
+				integer :: i,varrpos,xarrpos,pos
+				real :: dv,low,high,v,vrange,dvinv
+				character(len=32) :: fname
+				integer,dimension(2) :: int_tag
+				real :: real_tag
+				equivalence (real_tag,int_tag)
+				
+				if (xory == 1) then
+					vrange = 2.*fvxmax_ion
+					dv = vrange / real(nphbx)
+					dvinv = 1. / dv
+					low = -fvxmax_ion
+					high = fvxmax_ion
+	
+					if (phase_keep_only_tracked .eq. 0) then
+						do i = 1, npp(1)
+						
+							pos = floor(part(1,i,1))+1
+							v = part(3,i,1)
+							varrpos = floor( (v - low)*dvinv + 0.5) + 1
+							
+							if (varrpos .le. nphbx) then 
+								fvxy(pos,varrpos,1) = fvxy(pos,varrpos,1) + 1.
+							endif
+						enddo
+					else
+						do i = 1, npp(1)
+							real_tag = part(addtag_loc,i,1)
+							if (int_tag(1) == -1) then
+								pos = floor(part(1,i,1))+1
+								v = part(3,i,1)
+								varrpos = floor( (v - low)*dvinv + 0.5) + 1
+								
+								if (varrpos .le. nphbx) then 
+									fvxy(pos,varrpos,1) = fvxy(pos,varrpos,1) + 1.
+								endif
+							endif
+						enddo
+					endif
+						
+					call plsum(fvxy(:,:,1))
+					if (idproc == 0) then					
+						fname = './DIAG/IVx_x/vx_x'
+						call write_jf(fvxy,nxy,nphbx,trim(fname),PH_VX_X,time,it,1.,dv,0.,low)					
+					endif
+				else
+					vrange = 2.*fvymax_ion
+					dv = vrange / real(nphby)
+					dvinv = 1. / dv
+					low = -1.*fvymax_ion
+					high = fvymax_ion
+	
+					if (phase_keep_only_tracked .eq. 0) then
+						do i = 1, npp(1)
+							pos = floor(part(1,i,1))+1
+							v = part(4,i,1)
+							varrpos = floor( (v - low)*dvinv + 0.5) + 1
+							if (varrpos .le. nphby) then 
+								fvxy(pos,varrpos,1) = fvxy(pos,varrpos,1) + 1.
+							endif
+						enddo
+					else
+						do i = 1, npp(1)
+							real_tag = part(addtag_loc,i,1)
+							if (int_tag(1) == -1) then
+								pos = floor(part(1,i,1))+1
+								v = part(4,i,1)
+								varrpos = floor( (v - low)*dvinv + 0.5) + 1
+								
+								if (varrpos .le. nphby) then 
+									fvxy(pos,varrpos,1) = fvxy(pos,varrpos,1) + 1.
+								endif
+							endif
+						enddo
+					endif
+					call plsum(fvxy(:,:,1))
+					if (idproc == 0) then
+						fname = './DIAG/IVy_x/vy_x'
+						call write_jf(fvxy,nxy,nphby,trim(fname),PH_VY_X,time,it,1.,dv,0.,low)					
+					endif
+				endif
+
+			end subroutine phase_space_vxy_vs_x_ion
+
+			! This calculates the phase space at a given time for 1 direction
+			! specified by xory(x=1,y=2),nxy is nx or ny depending on xory
+			! fvxy = phase space for x or y
+			subroutine phase_space_vxy_vs_y_ion(part,fvxy,xory,nxy,npp,time,it,nblok,idproc)
+				implicit none
+				integer :: nblok,xory,nxy,idproc
+	      	real,dimension(:,:,:) :: part
+				integer :: it
+				real :: time
+				real,dimension(:,:,:),pointer :: fvxy
+				real,dimension(:,:,:),pointer :: sfieldtemp
+				integer,dimension(nblok) :: npp
+				integer :: i,varrpos,xarrpos,pos
+				real :: dv,low,high,v,vrange,dvinv
+				character(len=32) :: fname
+
+				integer,dimension(2) :: int_tag
+				real :: real_tag
+				equivalence (real_tag,int_tag)
+								
+				if (xory == 1) then
+					vrange = 2.*fvxmax_ion
+					dv = vrange / real(nphbx)
+					dvinv = 1. / dv
+					low = -1.*fvxmax
+					high = fvxmax
+					
+					if (phase_keep_only_tracked .eq. 0) then
+						do i = 1, npp(1)
+							pos = floor(part(2,i,1))+1
+							v = part(3,i,1)
+							varrpos = floor( (v + fvxmax)*dvinv + 0.5) + 1
+							
+							if ((varrpos .le. nphbx) .and. (varrpos .gt. 0)) then 
+								fvxy(pos,varrpos,1) = fvxy(pos,varrpos,1) + 1.
+							endif
+						enddo
+					else
+						do i = 1, npp(1)
+							real_tag = part(addtag_loc,i,1)
+							if (int_tag(1) == -1) then
+								pos = floor(part(2,i,1))+1
+								v = part(3,i,1)
+								varrpos = floor( (v + fvxmax)*dvinv + 0.5) + 1
+								
+								if ((varrpos .le. nphbx) .and. (varrpos .gt. 0)) then 
+									fvxy(pos,varrpos,1) = fvxy(pos,varrpos,1) + 1.
+								endif
+							endif
+						enddo
+					endif
+						
+					call plsum(fvxy(:,:,1))
+					if (idproc == 0) then
+						fname = './DIAG/IVx_y/vx_y'
+						call write_jf(fvxy,nxy,nphbx,trim(fname),PH_VX_Y,time,it,1.,dv,0.,low)					
+					endif
+				else
+					vrange = 2.*fvymax_ion
+					dv = vrange / real(nphby)
+					dvinv = 1. / dv
+					low = -1.*fvymax_ion
+					high = fvymax_ion
+	
+					if (phase_keep_only_tracked .eq. 0) then
+						do i = 1, npp(1)
+							pos = floor(part(2,i,1))+1
+							v = part(4,i,1)
+							varrpos = floor( (v + fvymax)*dvinv + 0.5) + 1
+							
+							if (varrpos .le. nphby) then 
+								fvxy(pos,varrpos,1) = fvxy(pos,varrpos,1) + 1.
+							endif
+						enddo
+					else
+						do i = 1, npp(1)
+							real_tag = part(addtag_loc,i,1)
+							if (int_tag(1) == -1) then
+								pos = floor(part(2,i,1))+1
+								v = part(4,i,1)
+								varrpos = floor( (v + fvymax)*dvinv + 0.5) + 1
+								
+								if (varrpos .le. nphby) then 
+									fvxy(pos,varrpos,1) = fvxy(pos,varrpos,1) + 1.
+								endif
+							endif
+						enddo
+					endif
+						
+					call plsum(fvxy(:,:,1))
+					if (idproc == 0) then
+						fname = './DIAG/IVy_y/vy_y'
+						call write_jf(fvxy,nxy,nphby,trim(fname),PH_VY_Y,time,it,1.,dv,0.,low)					
+					endif
+				endif
+
+			end subroutine phase_space_vxy_vs_y_ion
 			
 			subroutine bin_Ex_and_Ey(fxye,Ex_bin,Ey_bin,nx,ny,kyp,it,time,nvp,idproc,inorder)
 				implicit none

@@ -1020,14 +1020,14 @@
             call paguard(sfield,kstrt,nvp,nx,kyp,ngds)
 ! transform density to fourier space
             isign = -1
-            call fft(sfield,qt,isign,mixup,sct,tfft,indx,indy,kstrt,kyp,&
-     &inorder)
+!            call fft(sfield,qt,isign,mixup,sct,tfft,indx,indy,kstrt,kyp,&
+!          & inorder)
 ! calculate smoothing in fourier space
-            call pois(qt,sfieldt,ffc,nx,ny,kstrt)
+!            call pois(qt,sfieldt,ffc,nx,ny,kstrt)
 ! transform density to real space
             isign = 1
-            call fft(sfield,sfieldt,isign,mixup,sct,tfft,indx,indy,kstrt&
-     &,kyp,inorder)
+!            call fft(sfield,sfieldt,isign,mixup,sct,tfft,indx,indy,kstrt&
+!     &,kyp,inorder)
 ! copy to guard cells
             call pcguard(sfield,kstrt,nvp,kyp,inorder)
             call cguard(sfield,nyp,nx,inorder)
@@ -1040,6 +1040,33 @@
 ! add ion density
       if (movion==1) then
          call dpost(parti,qe,qmi,nppi,noff,tdposti,inorder,dopt)
+! Ion Density Diagnostics
+         if(itime==ntden*it .AND. ntden > 0) then
+           sfield = 0.0
+           call dpost(parti,sfield,qmi,nppi,noff,tdposti,inorder,dopt)
+!           sfield = qi
+! add guard cells for density in x
+            call aguard(sfield,nyp,nx,inorder)
+! add guard cells for density in y
+            call paguard(sfield,kstrt,nvp,nx,kyp,ngds)
+! transform density to fourier space
+            isign = -1
+            call fft(sfield,qt,isign,mixup,sct,tfft,indx,indy,kstrt,kyp,&
+     &inorder)
+! calculate smoothing in fourier space
+            call pois(qt,sfieldt,ffc,nx,ny,kstrt)
+! transform density to real space
+            isign = 1
+            call fft(sfield,sfieldt,isign,mixup,sct,tfft,indx,indy,kstrt&
+     &,kyp,inorder)
+! copy to guard cells
+            call pcguard(sfield,kstrt,nvp,kyp,inorder)
+            call cguard(sfield,nyp,nx,inorder)
+
+						fname = './DIAG/IDen/'//'ni.'//cdrun
+						call writef(sfield,nxe,nypmx,itime,itime*dt,DEN,trim(fname),inorder)  
+		  endif
+! Ion Density Diagnostics         
       else
          qe = qe + qi
       endif
@@ -1408,6 +1435,10 @@
 			if (itime==nphxx*it) then
 				fvxx = 0.
 				call phase_space_vxy_vs_x(part,fvxx,1,nx,npp,real(itime)*dt,itime,nblok,idproc)
+			    if (movion==1) then
+				fvxx = 0.
+			        call phase_space_vxy_vs_x_ion(parti,fvxx,1,nx,nppi,real(itime)*dt,itime,nblok,idproc)
+			    endif
 			endif
 		endif
 		if (nphyx > 0) then

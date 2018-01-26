@@ -12,6 +12,7 @@
       public :: pinput2_jf,sendnml_jf
       public :: amp,wavemode,wavew,angle
       public :: fvxmax,fvymax,nphbx,nphby,nphxx,nphyx,nphxy,nphyy
+      public :: fvxmax_ion,fvymax_ion
       public :: driver_select,rise,flat,fall,timerise,timeflat,timefall,phase_offset
       public :: yrise_fall,linepos,ntlines,center1,center2
       public :: phsl_x_pos,phsl_x_thick,ntphsl_x,num_phsl_x
@@ -50,6 +51,7 @@
       ! these two are the ranges for the phase space velocities
       ! the phase space will be from v = -fvxmax to fvxmax
       real :: fvxmax = 10., fvymax = 10.
+      real :: fvxmax_ion = 1., fvymax_ion = 1.
       ! nphbx,nphby = # phase space bins in vx,vy
       ! nphxx,nphyx,nphxy,nphyy = dump factor for phase space in vx vs. x, vx vs. y, and so on
       integer :: nphbx = 10, nphby = 10, nphxx = 0, nphyx = 0,nphxy=0,nphyy=0
@@ -228,12 +230,12 @@
       	&nt_vx_vy_speed, nvx_vy_speed, vx_vy_xrange, vx_vy_yrange, vx_vy_speed,nt_write_Ux_sumover_x,&
       	&nt_write_U_sumover_x_fromE,nt_write_grad_phi,ampere_k0,nt_write_S_sumover_x, nt_b_field,&
       	&turn_off_self_con,nt_through_wave,final_y,init_range,nt_dEdt,nt_write_kE_sumover_x, nt_kE,&
-      	&nt_write_jE_onlytracked_sumover_x
+      	&nt_write_jE_onlytracked_sumover_x, fvxmax_ion,fvymax_ion
       
       contains
       	subroutine sendnml_jf()
       		implicit none
-				integer,parameter :: lenml = 155
+				integer,parameter :: lenml = 157
 				double precision, dimension(lenml) :: ddata
 				ddata(1) = ntfield
 				ddata(2) = amp
@@ -357,6 +359,9 @@
 				ddata(153) = nt_write_kE_sumover_x
 				ddata(154) = nt_kE
 				ddata(155) = nt_write_jE_onlytracked_sumover_x				
+                                ddata(156) = fvxmax_ion
+                                ddata(157) = fvymax_ion
+
 				call PBCAST(ddata,lenml)
 				ntfield = ddata(1)
 				amp = ddata(2)
