@@ -33,7 +33,7 @@ INCPATH = -I$(H5_DIR)/include -L$(H5_DIR)/lib
 #	-L$(H5_DIR)/lib -lhdf5 -lhdf5_fortran -lsz \
 #	-L$(SZ_DIR)/lib
 LIBS = -ljpeg -lz \
-	-L$(H5_DIR)/lib -lhdf5_fortran -lhdf5 \
+	-L$(H5_DIR)/lib -lhdf5_fortran -lhdf5 -lsz \
 	-L$(SZ_DIR)/lib
 
 # Makefile Absoft compiler with MacOS X
