@@ -128,11 +128,11 @@
       
 !Debugging Poynting vector variables
 !      real :: poynt_tot, ES_ene,ES_ene_h, vdote_tot,vdote_tot_part=0.,kin_ene=0.,kin_ene_tot=0.
- !     real :: kin_ene_cent=0.,kin_ene_0=0.,kin_ene_cent_0=0.,vdote_0=0.,ES_ene_old=0.,ES_ene_h_old
-  !    real :: temp_we,tot_ene,tot_ene_old
-   !   real :: ene_120 = 0.,poynt_120=0., vdote_120=0.,poynt=0.,allthree=0.,top,left,bot,right,wtotold=0.
-    !  real :: kinene=0., kinene_old=0.,kinene_old2=0., tot_par=0.,wkeold=0.,div_poynt
-     ! real :: line_on_cell,line_between_cells,line_ave_3,line_weight_3
+!     real :: kin_ene_cent=0.,kin_ene_0=0.,kin_ene_cent_0=0.,vdote_0=0.,ES_ene_old=0.,ES_ene_h_old
+!     real :: temp_we,tot_ene,tot_ene_old
+!     real :: ene_120 = 0.,poynt_120=0., vdote_120=0.,poynt=0.,allthree=0.,top,left,bot,right,wtotold=0.
+!     real :: kinene=0., kinene_old=0.,kinene_old2=0., tot_par=0.,wkeold=0.,div_poynt
+!     real :: line_on_cell,line_between_cells,line_ave_3,line_weight_3
       integer :: icnt,jcnt
       real,dimension(3) :: div_tot
 		  
@@ -1890,10 +1890,6 @@
 			
 		endif
 
-! -----------------------------------OLD---------------------------------------------------------------
-! this section removed to old_poynt.f			
-
-!-----------------------------------------------END OLD-------------------------------------------------
 
 ! particle push and charge density update
       wke = 0.
@@ -1918,7 +1914,6 @@
 
 !      call pmove_jf(part,edges,npp,tmove,ny,kstrt,nvp,nbmax,vect,ierr)
       if (ierr /= 0) then
-         call MP_END
          call PPEXIT
          stop
       endif
@@ -1937,7 +1932,6 @@
          call pmove(parti,edges,nppi,tmovi,ny,kstrt,nvp,nbmax,vect,ierr)
 !         call pmove_jf(parti,edges,nppi,tmovi,ny,kstrt,nvp,nbmax,vect,ierr)
          if (ierr /= 0) then
-            call MP_END
             call PPEXIT
             stop
          endif
@@ -2099,7 +2093,6 @@
             nprec = nprec - 1
             write (19,ppot2d,iostat=irc)
          endif
-			call h5close_f(h5error)
 
 ! done
          write (18,*) '* * * q.e.d. * * *'
@@ -2116,7 +2109,6 @@
 			endif
 
  3000 call PGRCLOSE
-      call MP_END
       call PPEXIT
       stop
 !
