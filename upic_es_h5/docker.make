@@ -23,7 +23,7 @@ MPIOBJS = nullLOG.o
 MPOBJS = MacMPxlf.o LnxMP.o
 
 HDF_DIR = /usr/local/
-H5_DIR = /usr/lib/x86_64-linux-gnu/hdf5/openmpi/lib/
+H5_DIR = /usr/lib/x86_64-linux-gnu/hdf5/openmpi
 SZ_DIR = /usr/local/
 
 INCPATH = -I$(H5_DIR)/include -L$(H5_DIR)/lib 
@@ -34,7 +34,7 @@ INCPATH = -I$(H5_DIR)/include -L$(H5_DIR)/lib
 #	-L$(SZ_DIR)/lib
 LIBS = -ljpeg -lz \
 	-L$(H5_DIR)/lib -lsz -lhdf5_fortran -lhdf5 \
-	-L$(SZ_DIR)/lib
+#	-L$(SZ_DIR)/lib
 
 # Makefile Absoft compiler with MacOS X
 
@@ -271,7 +271,7 @@ upic-es-arb.out : upic-es-arb.o $(ESOBJS) $(MPIOBJS) $(NPOBJS) $(GOBJS)
 
 upic-es-mag.out : upic-es-mag.o $(ESOBJS) $(MPIOBJS) $(NPOBJS) $(GOBJS)
 	$(MPIFC) $(OPTS90) $(LOPTS) $(EMOBJS) mkdir_f_fxns.o -o upic-es-mag.out \
-	upic-es-arb.o $(ESOBJS) $(MPIOBJS) $(NPOBJS) $(GOBJS) $(LIBS) $(INCPATH)
+	upic-es-mag.o $(ESOBJS) $(MPIOBJS) $(NPOBJS) $(GOBJS) $(LIBS) $(INCPATH)
 
 # Compilation rules
 
@@ -499,6 +499,13 @@ upic-es-arb.o : upic-es-arb.f ppush2mod.o prbpush2mod.o pfft2mod.o \
                diag_jf.o ampere_jf.o ext_driver_jf.o hdf_write_jf.o \
                par_track_new_jf.o ppush2mod_jf.o pfield2mod_jf.o
 	$(FC90) $(OPTS90) $(MOPTS) $(INCPATH) -c -ffree-form upic-es-arb.f
+
+upic-es-mag.o : upic-es-mag.f ppush2mod.o prbpush2mod.o pfft2mod.o \
+               pbpush2mod.o pbpush2lib.o mkdir_f_fxns.o \
+               pfield2mod.o pdiag2mod.o p2mod.o mp0mod.o h5lib_beps.o p2mod_jf.o \
+               diag_jf.o ampere_jf.o ext_driver_jf.o hdf_write_jf.o \
+               par_track_new_jf.o ppush2mod_jf.o pfield2mod_jf.o
+	$(FC90) $(OPTS90) $(MOPTS) $(INCPATH) -c -ffree-form upic-es-mag.f
 
 clean :
 # Delete -i new_beps2.out {OBJS}
