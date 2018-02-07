@@ -711,7 +711,11 @@
 ! initialize constants
       itime = 0
       qbme = qme
-      affp = float(nx)*float(ny)/float(np)
+!     here is where the charge is calculated, using np
+!     makes plasma density the total density of electrons & beams,
+!     using npxy makes the electron density the normalization factor for 
+!     affp = float(nx)*float(ny)/float(np)
+      affp = float(nx)*float(ny)/float(npxy)
       if (movion==1) then
          qbmi = qmi/rmass
          vtdxi = vtx/sqrt(rmass*rtempdxi)

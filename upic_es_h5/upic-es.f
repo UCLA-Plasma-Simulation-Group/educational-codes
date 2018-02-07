@@ -711,7 +711,7 @@
 ! initialize constants
       itime = 0
       qbme = qme
-      affp = float(nx)*float(ny)/float(np)
+      affp = float(nx)*float(ny)/float(npxy)
       if (movion==1) then
          qbmi = qmi/rmass
          vtdxi = vtx/sqrt(rmass*rtempdxi)
