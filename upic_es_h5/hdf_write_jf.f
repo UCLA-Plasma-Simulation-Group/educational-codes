@@ -103,8 +103,8 @@
       character*70 timeunits
       
 ! arrays needed for HDF-write      
-      real*8 xaxis(nx),yaxis(ny)
-      real*8 ftemp(nx,ny)
+      real xaxis(nx),yaxis(ny)
+      real ftemp(nx,ny)
       integer ix,iy
 !      
 ! temporary attributes, needed for Ricardo's IDL routines
