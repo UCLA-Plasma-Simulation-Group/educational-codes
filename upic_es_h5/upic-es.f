@@ -780,6 +780,7 @@
 	       endif
 !         call pmove_jf(part,edges,npp,tmove,ny,kstrt,nvp,nbmax,vect,ierr)
          if (ierr /= 0) then
+            call MP_END
             call PPEXIT
             stop
          endif
@@ -812,6 +813,7 @@
 !            call pmove_jf(parti,edges,nppi,tmovi,ny,kstrt,nvp,nbmax,vect,ie&
 !     &rr)
             if (ierr /= 0) then
+               call MP_END
                call PPEXIT
                stop
             endif
@@ -1018,14 +1020,14 @@
             call paguard(sfield,kstrt,nvp,nx,kyp,ngds)
 ! transform density to fourier space
             isign = -1
-!            call fft(sfield,qt,isign,mixup,sct,tfft,indx,indy,kstrt,kyp,&
-!          & inorder)
+            call fft(sfield,qt,isign,mixup,sct,tfft,indx,indy,kstrt,kyp,&
+     &inorder)
 ! calculate smoothing in fourier space
-!            call pois(qt,sfieldt,ffc,nx,ny,kstrt)
+            call pois(qt,sfieldt,ffc,nx,ny,kstrt)
 ! transform density to real space
             isign = 1
-!            call fft(sfield,sfieldt,isign,mixup,sct,tfft,indx,indy,kstrt&
-!     &,kyp,inorder)
+            call fft(sfield,sfieldt,isign,mixup,sct,tfft,indx,indy,kstrt&
+     &,kyp,inorder)
 ! copy to guard cells
             call pcguard(sfield,kstrt,nvp,kyp,inorder)
             call cguard(sfield,nyp,nx,inorder)
@@ -1912,6 +1914,7 @@
 
 !      call pmove_jf(part,edges,npp,tmove,ny,kstrt,nvp,nbmax,vect,ierr)
       if (ierr /= 0) then
+         call MP_END
          call PPEXIT
          stop
       endif
@@ -1930,6 +1933,7 @@
          call pmove(parti,edges,nppi,tmovi,ny,kstrt,nvp,nbmax,vect,ierr)
 !         call pmove_jf(parti,edges,nppi,tmovi,ny,kstrt,nvp,nbmax,vect,ierr)
          if (ierr /= 0) then
+            call MP_END
             call PPEXIT
             stop
          endif
@@ -2091,7 +2095,7 @@
             nprec = nprec - 1
             write (19,ppot2d,iostat=irc)
          endif
-!	call h5close_f(h5error)
+			call h5close_f(h5error)
 
 ! done
          write (18,*) '* * * q.e.d. * * *'
@@ -2108,6 +2112,7 @@
 			endif
 
  3000 call PGRCLOSE
+      call MP_END
       call PPEXIT
       stop
 !
@@ -2183,6 +2188,7 @@
 ! handle error
    30       if (id0==0) write (18,*) 'Restart Error'
             call PGRCLOSE
+            call MP_END
             call PPEXIT
             stop
          endif
@@ -2242,6 +2248,7 @@
                write (18,*) '* * * q.e.d. * * *'
             endif
    20       call PGRCLOSE
+            call MP_END
             call PPEXIT
             stop
          else
