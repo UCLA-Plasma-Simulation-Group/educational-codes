@@ -8,12 +8,12 @@ FC90 = mpif90
 FC77 = mpif77
 CC = mpicc
 
-OPTS90 = -fopenmp -fdefault-real-8 -O
-OPTS77 = -fopenmp -fdefault-real-8 -O
+OPTS90 = -fopenmp -fdefault-real-8 -O4
+OPTS77 = -fopenmp -fdefault-real-8 -O4
 #OPTS90 = -r8 -DFORTRANSINGLEUNDERSCORE -O3
 #OPTS77 = -r8 -DFORTRANSINGLEUNDERSCORE -O3
 
-CCOPTS = -O
+CCOPTS = -O4
 MOPTS = -s
 MBOPTS = -s
 LOPTS =

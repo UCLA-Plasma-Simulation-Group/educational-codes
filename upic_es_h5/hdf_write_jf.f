@@ -116,12 +116,12 @@
       type (hdf5file) h5_header
       
 ! DEBUG
-      write(*,*)'in pwrite_1core_h5'
-      write(*,*)'(pwrite_h5) nproc= ',nproc
-      write(*,*)'(pwrite_h5) nx = ',nx
-      write(*,*)'(pwrite_h5) ny = ',ny
-      write(*,*)'(pwrite_h5) xoff,yoff =',xoff,yoff
-      write(*,*)'(pwrite_h5) dvx, dvy =', dvx, dvy
+!     write(*,*)'in pwrite_1core_h5'
+!     write(*,*)'(pwrite_h5) nproc= ',nproc
+!     write(*,*)'(pwrite_h5) nx = ',nx
+!     write(*,*)'(pwrite_h5) ny = ',ny
+!     write(*,*)'(pwrite_h5) xoff,yoff =',xoff,yoff
+!     write(*,*)'(pwrite_h5) dvx, dvy =', dvx, dvy
 ! DEBUG
 ! define HDF5 "chunk" here
 !     start(1)=0
