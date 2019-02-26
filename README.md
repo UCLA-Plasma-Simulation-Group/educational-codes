@@ -15,24 +15,24 @@ Running these codes require some flavor of MPI and HDF5.  Because we use paralle
 
 To install MPI, download the source file, and go to the MPI folder and type the following commands:
 
-./configure CC=/usr/bin/gcc F77=/usr/local/bin/gfortran F90=/usr/local/bin/gfortran --prefix=/usr/local
-make all
-make test
-sudo make install
+./configure CC=/usr/bin/gcc F77=/usr/local/bin/gfortran F90=/usr/local/bin/gfortran --prefix=/usr/local \
+make all \
+make test \
+sudo make install 
 
 (the SUDO is important as you cannot put sofware to /usr/local without root priviledges).
 
 After you've installed MPI, you should have the parallel compilers MPICC and MPIF90, to check it, type
 
-which mpicc
-which mpif90
+which mpicc \
+which mpif90 
 
 and make sure these commands return something.  Then you can install the HDF5 library.  To do that, download HDF5 source and go to the HDF5 folder and type:
 
-./configure CC=mpicc F77=mpif90 F90=mpif90  --enable-parallel --enable-fortran --prefix=/usr/local
-make all
-make test
-sudo make install
+./configure CC=mpicc F77=mpif90 F90=mpif90  --enable-parallel --enable-fortran --prefix=/usr/local \
+make all \
+make test \
+sudo make install 
 
 Then you should be able to compile the educational softwares on your Mac.
 
