@@ -11,11 +11,11 @@
       public :: ntfield
       public :: pinput2_jf,sendnml_jf
       public :: amp,wavemode,wavew,angle
+! ECHO
 ! second antenna for the echo problem
-!
-      public :: time_delay, timerise2,timeflat2,timefall2,
-      public :: amp2, wavemode2
-! echo
+      public :: time_delay, timerise2,timeflat2,timefall2
+      public :: amp2, wavemode2, wavew2
+! ECHO
       public :: fvxmax,fvymax,nphbx,nphby,nphxx,nphyx,nphxy,nphyy
       public :: fvxmax_ion,fvymax_ion
       public :: driver_select,rise,flat,fall,timerise,timeflat,timefall,phase_offset
@@ -53,6 +53,9 @@
       ! wavew is the frequency of the driver
       integer :: wavemode=0
       real :: amp = 0., wavew = 0.,angle = 0.
+
+      integer :: wavemode2 = 0
+      real :: amp2 = 0., wavew2 = 1.0 
       ! these two are the ranges for the phase space velocities
       ! the phase space will be from v = -fvxmax to fvxmax
       real :: fvxmax = 10., fvymax = 10.
@@ -67,7 +70,11 @@
 			! so, for example, rise = 3 means the rise distance is 3*lambda
       real :: rise=1.,flat=1.,fall=1.
 			! rise time flat time and fall time
+! ECHo
       real :: timerise = 0.,timeflat = 1000000., timefall = 0.
+      real :: timerise2 = 0., timeflat2 = 1.0, timefall2 = 0. 
+      real :: time_delay = 1.0
+! ECHO
       ! yrise_fall =  spatial rise and fall for the transverse profile
       ! phase_offset is the distance that the phase of the center of the transverse profile is 
       !  offset from the top and bottom edges, for use with the circular wavefront driver
@@ -240,7 +247,7 @@
       contains
       	subroutine sendnml_jf()
       		implicit none
-				integer,parameter :: lenml = 157
+				integer,parameter :: lenml = 164
 				double precision, dimension(lenml) :: ddata
 				ddata(1) = ntfield
 				ddata(2) = amp
@@ -366,6 +373,15 @@
 				ddata(155) = nt_write_jE_onlytracked_sumover_x				
                                 ddata(156) = fvxmax_ion
                                 ddata(157) = fvymax_ion
+                                ! ECHo
+                                ddata(158) = amp2
+                                ddata(159) = wavemode2
+                                ddata(160) = wavew2
+                                ddata(161) = time_delay
+                                ddata(162) = timerise2
+                                ddata(163) = timeflat2
+                                ddata(164) = timefall2
+                                ! ECHO
 
 				call PBCAST(ddata,lenml)
 				ntfield = ddata(1)
@@ -490,6 +506,18 @@
 				nt_write_kE_sumover_x = ddata(153)
 				nt_kE = ddata(154)
 				nt_write_jE_onlytracked_sumover_x = ddata(155)
+                                fvymax_ion = ddata(156)
+                                fvymax_ion = ddata(157)
+                                ! ECHO
+                                amp2 = ddata(158)
+                                wavemode2 = ddata(159)
+                                wavew2 = ddata(160)
+                                time_delay = ddata(161)
+                                timerise2 = ddata(162)
+                                timeflat2 = ddata(163)
+                                timefall2 = ddata(164)
+                                ! ECHO
+
 
       	end subroutine sendnml_jf
       	

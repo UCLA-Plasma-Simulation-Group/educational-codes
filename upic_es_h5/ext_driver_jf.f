@@ -204,10 +204,11 @@ module ext_driver_jf
 		endif
 		
 ! second driver
-		wavek2 = real(nx)/wavemode2
+
+	wavek2 = real(nx)/wavemode2
         wavek2=6.283185307/wavek2
         fac=1.
-        t_local=(t-t_delay)
+        t_local=(t-time_delay)
         if(t_local < timerise2) then
         	tfac = t_local/timerise2
         else if (t_local < (timerise2 + timeflat2)) then
