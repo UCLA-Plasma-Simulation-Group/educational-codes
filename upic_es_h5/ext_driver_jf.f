@@ -105,6 +105,7 @@ module ext_driver_jf
 		real :: ylow, yhigh, ypos
 		real :: tempamp, tempamp2,ytemp
 		real :: mfallinv,falloffset,r_f,r_f_f, phase,tan_value
+
 		
 		wavek = real(nx)/wavemode
 		wavek = 6.283185307/wavek
@@ -175,6 +176,8 @@ module ext_driver_jf
 		real,dimension(:,:,:,:) :: fxye
 		integer :: i
 		real :: xstart,xpos,wavek,tempamp,fac, tfac
+
+		real :: wavek2, t_local
 		
 		wavek = real(nx)/wavemode
 		wavek = 6.283185307/wavek
@@ -188,6 +191,7 @@ module ext_driver_jf
 			tfac = 1. - (t - (timerise+timeflat))/timefall
 		endif
 		
+
 		tfac = tfac * amp
 		
 		if (t < timerise + timeflat + timefall) then
@@ -199,6 +203,28 @@ module ext_driver_jf
 			enddo
 		endif
 		
+! second driver
+		wavek2 = real(nx)/wavemode2
+        wavek2=6.283185307/wavek2
+        fac=1.
+        t_local=(t-t_delay)
+        if(t_local < timerise2) then
+        	tfac = t_local/timerise2
+        else if (t_local < (timerise2 + timeflat2)) then
+        	tfac = 1.0
+        else if (t_local < (timerise2 + timeflat2 + timefall2)) then
+        	tfac = 1 - (t_local - (timerise2+timeflat2))/timefall2
+        endif
+
+        tfac = tfac * amp2
+        if (t < timerise2 + timeflat2 + timefall2) then
+		
+			! Array position 2 corresponds to x=0 cause of gaurdcells
+			do i = 1, nxe
+				xpos = real(i)-2.
+				fxye(1,i,:,1) = fxye(1,i,:,1) + tfac * sin(wavek2*xpos-wavew2*t)
+			enddo
+		endif
 	end subroutine plane_wave
 
 	subroutine plane_wave_in_y(fxye,t,nx,nxe,ny,nypmx,nvp,idproc)

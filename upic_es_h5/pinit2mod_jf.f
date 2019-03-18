@@ -11,6 +11,11 @@
       public :: ntfield
       public :: pinput2_jf,sendnml_jf
       public :: amp,wavemode,wavew,angle
+! second antenna for the echo problem
+!
+      public :: time_delay, timerise2,timeflat2,timefall2,
+      public :: amp2, wavemode2
+! echo
       public :: fvxmax,fvymax,nphbx,nphby,nphxx,nphyx,nphxy,nphyy
       public :: fvxmax_ion,fvymax_ion
       public :: driver_select,rise,flat,fall,timerise,timeflat,timefall,phase_offset
