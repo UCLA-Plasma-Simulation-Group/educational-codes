@@ -205,6 +205,7 @@ module ext_driver_jf
 		
 ! second driver
 
+        if(amp2 .ne. 0) then
 	wavek2 = real(nx)/wavemode2
         wavek2=6.283185307/wavek2
         fac=1.
@@ -225,7 +226,8 @@ module ext_driver_jf
 				xpos = real(i)-2.
 				fxye(1,i,:,1) = fxye(1,i,:,1) + tfac * sin(wavek2*xpos-wavew2*t)
 			enddo
-		endif
+	endif
+        endif
 	end subroutine plane_wave
 
 	subroutine plane_wave_in_y(fxye,t,nx,nxe,ny,nypmx,nvp,idproc)
