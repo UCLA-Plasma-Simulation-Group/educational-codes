@@ -226,6 +226,7 @@
       integer :: nt_write_kE_sumover_x = 0, nt_kE = 0
       
       namelist /pinput2_jf/ ntfield, amp,wavemode,wavew,fvxmax,fvymax,&
+        &amp2,wavemode2,wavew2,timerise2,timeflat2,timefall2,time_delay,&
       	&nphbx,nphby,nphxx,nphyx,rise,flat,fall,driver_select,timerise,&
       	&timeflat,timefall,yrise_fall,linepos,ntlines,phsl_x_pos,phsl_x_thick,ntphsl_x,&
       	&phsl_y_pos,phsl_y_thick,ntphsl_y,ntden,ntpene,ntj,ntvdotE, ntraw,nttrack, &
