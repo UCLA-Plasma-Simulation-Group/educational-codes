@@ -210,7 +210,9 @@ module ext_driver_jf
         wavek2=6.283185307/wavek2
         fac=1.
         t_local=(t-time_delay)
-        if(t_local < timerise2) then
+        if (t_local < 0) then
+                tfac = 0
+        else if(t_local < timerise2) then
         	tfac = t_local/timerise2
         else if (t_local < (timerise2 + timeflat2)) then
         	tfac = 1.0
