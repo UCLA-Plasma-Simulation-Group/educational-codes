@@ -2,15 +2,27 @@
 !
       module pinit2d_jf
 !
-! written by Jay Fahlen as new input parameters and namelists for
-! Viktor Decyk's 2d beps code.
-! written Jan. 2008
 
       implicit none
       private
       public :: ntfield
       public :: pinput2_jf,sendnml_jf
       public :: amp,wavemode,wavew,angle
+!
+! FST -> BVP
+! August, 2019
+! additional input parameters for boundary value problems (BVP)
+! antenna is located @ the middle (n/2) and slight right (n/2+1) 
+! of the box.  The value @ mid-point is exactly as specified by 
+! the input deck and the n/2+1 cell is the exact opposite.  The 
+! idea is to mimic a shielded potential/field source at some 
+! location x0. 
+!
+
+      public :: ant_amp, ant_omega, ant_trise, ant_tflat, ant_tfall
+
+!
+! FST -> Jan 2019
 ! ECHO
 ! second antenna for the echo problem
       public :: time_delay, timerise2,timeflat2,timefall2
@@ -53,9 +65,13 @@
       ! wavew is the frequency of the driver
       integer :: wavemode=0
       real :: amp = 0., wavew = 0.,angle = 0.
-
+! BVP
+      real :: ant_amp, ant_omega, ant_trise, ant_tflat, ant_tfall
+! BVP 
+! ECHO
       integer :: wavemode2 = 0
       real :: amp2 = 0., wavew2 = 1.0 
+! ECHO
       ! these two are the ranges for the phase space velocities
       ! the phase space will be from v = -fvxmax to fvxmax
       real :: fvxmax = 10., fvymax = 10.
@@ -70,7 +86,7 @@
 			! so, for example, rise = 3 means the rise distance is 3*lambda
       real :: rise=1.,flat=1.,fall=1.
 			! rise time flat time and fall time
-! ECHo
+! ECHO
       real :: timerise = 0.,timeflat = 1000000., timefall = 0.
       real :: timerise2 = 0., timeflat2 = 1.0, timefall2 = 0. 
       real :: time_delay = 1.0

@@ -1014,6 +1014,53 @@ module ext_driver_jf
 		enddo
 	endif
 	end subroutine supergauss_tran_per_wavelen
+        
+        subroutine antenna(fxye, t, nx,ny,nypmx, nvp, idproc, ant_amp, ant_omega, ant_trise, ant_tflat, ant_tfall)
+	    integer :: nx,ny,nypmx,nvp,idproc
+	    real :: ant_amp, ant_omega, ant_trise, ant_tflat, ant_tfall
+            ! t -> current time
+	    real :: t
+	    real,dimension(:,:,:,:) :: fxye
+	    integer :: i,j,stoppos, ystart,yend
+	    integer, dimension(nvp) :: proc_pos
+	    integer nyproc ! ny per processor
+
+	    real :: xstart,xpos,wavek,riseinv,tfac,xfac, pshift, Ey, a1,p, a2
+	    real :: ylow, yhigh, ypos
+	    real :: tempamp 
+            real :: local_amp
+
+	    nyproc = ny / nvp
+            do j = 1,nypmx
+	        local_amp = ant_amp * cos(t*ant_omega) * time_envelope(t,ant_trise,ant_tflat,ant_tfall)
+	        fxye(1,nx/2,j,1) = fxye(1,nx/2,j,1) + local_amp
+	        fxye(1,nx/2+1,j,1) = fxye(1,nx/2+1,j,1) - local_amp
+            enddo		
+        end subroutine antenna
+	
+
+	real function time_envelope(time,t_rise,t_flat,t_fall)
+
+	    real, intent(in) :: time, t_rise,t_flat,t_fall
+            real t_norm
+
+	    if(time < t_rise) then
+                t_norm=time/t_rise
+	        time_envelope = t_norm
+	        time_envelope = 10.0*t_norm**3-15*t_norm**4+6*t_norm**5
+            else if (time < (t_rise+t_flat)) then
+                time_envelope = 1.0
+            else if (time < (t_rise+t_flat+t_fall)) then
+	        t_norm=1.0-(time-(t_rise+t_flat))/t_fall
+	        time_envelope = 10.0*t_norm**3-15*t_norm**4+6*t_norm**5
+            else
+	        time_envelope = 0.0
+            end if
+        end function time_envelope
+
+
+
+        
 
 
 end module ext_driver_jf

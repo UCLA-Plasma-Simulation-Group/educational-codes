@@ -32,7 +32,7 @@ INCPATH = -I$(H5_DIR)/include -L$(H5_DIR)/lib
 # LIBS = -L$(HDF_DIR)/lib -lz -ljpeg -ldf -lmfhdf \
 #	-L$(H5_DIR)/lib -lhdf5 -lhdf5_fortran -lsz \
 #	-L$(SZ_DIR)/lib
-LIBS = -lz \
+LIBS =  \
 	-L$(H5_DIR)/lib -lhdf5_fortran -lhdf5 \
 	-L$(SZ_DIR)/lib
 

@@ -1233,6 +1233,9 @@
 			call plane_finite_wavelen_supergauss(fxye,real(itime)*dt,nx,nxe,nvp,idproc)
 		else if (driver_select == 14) then
 			call plane_wave_in_y(fxye,real(itime)*dt,nx,nxe,ny,nypmx,nvp,idproc)
+                else if (driver_select == 15) then
+         call antenna(fxye, t, nx,ny,nypmx, nvp, idproc, ant_amp, ant_omega, ant_trise, ant_tflat, ant_tfall)
+
 		endif
 
 ! copy data from field to particle partition, and copy to guard cells
