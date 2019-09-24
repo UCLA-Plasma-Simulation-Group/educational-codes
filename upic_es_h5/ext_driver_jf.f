@@ -10,7 +10,7 @@ module ext_driver_jf
 	public :: gauss_tran_per_wavelen_circle_wavefronts
 	public :: gauss_tran_per_wavelen_pois,rect_tran_per_wavelen,supergauss_tran_per_wavelen
 	public :: plane_finite_wavelen_supergauss
-        public :: antenna
+    public :: antenna
 	
 	contains
 	
@@ -1016,10 +1016,12 @@ module ext_driver_jf
 	endif
 	end subroutine supergauss_tran_per_wavelen
         
-        subroutine antenna(fxye, t, nx,ny,nypmx, nvp, idproc, ant_amp, ant_omega, ant_trise, ant_tflat, ant_tfall)
+        subroutine antenna(fxye, t, nx,ny,nypmx, nvp, idproc, ant_amp, ant_omega, ant_trise, ant_tflat, ant_tfall, echo)
 	    integer :: nx,ny,nypmx,nvp,idproc
 	    real :: ant_amp, ant_omega, ant_trise, ant_tflat, ant_tfall
-            ! t -> current time
+	    
+	    logical, optional :: echo
+        ! t -> current time
 	    real :: t
 	    real,dimension(:,:,:,:) :: fxye
 	    integer :: i,j,stoppos, ystart,yend
@@ -1032,11 +1034,21 @@ module ext_driver_jf
             real :: local_amp
 
 	    nyproc = ny / nvp
+	    
+	    if (.not. present(echo)) then
             do j = 1,nypmx
 	        local_amp = ant_amp * cos(t*ant_omega) * time_envelope(t,ant_trise,ant_tflat,ant_tfall)
 	        fxye(1,nx/2,j,1) = fxye(1,nx/2,j,1) + local_amp
 	        fxye(1,nx/2+1,j,1) = fxye(1,nx/2+1,j,1) - local_amp
             enddo		
+        else
+        	do j = 1,nypmx
+	        local_amp = ant_amp * cos(t*ant_omega) * time_envelope(t,ant_trise,ant_tflat,ant_tfall)
+	        fxye(1,nx/2,j,1) = fxye(1,nx/2,j,1) + local_amp
+	        fxye(1,nx/2+1,j,1) = fxye(1,nx/2+1,j,1) - local_amp
+            enddo
+        endif
+        
         end subroutine antenna
 	
 

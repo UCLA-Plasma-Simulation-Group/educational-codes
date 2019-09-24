@@ -67,6 +67,7 @@
       real :: amp = 0., wavew = 0.,angle = 0.
 ! BVP
       real :: ant_amp, ant_omega, ant_trise, ant_tflat, ant_tfall
+      real :: ant_amp2, ant_omega2, ant_trise2, ant_tflat2, ant_tfall2
 ! BVP 
 ! ECHO
       integer :: wavemode2 = 0
@@ -260,7 +261,8 @@
       	&nt_write_U_sumover_x_fromE,nt_write_grad_phi,ampere_k0,nt_write_S_sumover_x, nt_b_field,&
       	&turn_off_self_con,nt_through_wave,final_y,init_range,nt_dEdt,nt_write_kE_sumover_x, nt_kE,&
       	&nt_write_jE_onlytracked_sumover_x, fvxmax_ion,fvymax_ion,&
-        &ant_amp,ant_omega,ant_trise,ant_tflat,ant_tfall
+        &ant_amp,ant_omega,ant_trise,ant_tflat,ant_tfall,
+        &ant_amp2,ant_omega2,ant_trise2,ant_tflat2,ant_tfall2
       
       contains
       	subroutine sendnml_jf()
