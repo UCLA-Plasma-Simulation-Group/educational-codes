@@ -267,7 +267,9 @@
       contains
       	subroutine sendnml_jf()
       		implicit none
-				integer,parameter :: lenml = 164
+                  ! LENML -> Namelist Length
+				integer,parameter :: lenml = 174
+                  ! LENML
 				double precision, dimension(lenml) :: ddata
 				ddata(1) = ntfield
 				ddata(2) = amp
@@ -391,17 +393,30 @@
 				ddata(153) = nt_write_kE_sumover_x
 				ddata(154) = nt_kE
 				ddata(155) = nt_write_jE_onlytracked_sumover_x				
-                                ddata(156) = fvxmax_ion
-                                ddata(157) = fvymax_ion
-                                ! ECHo
-                                ddata(158) = amp2
-                                ddata(159) = wavemode2
-                                ddata(160) = wavew2
-                                ddata(161) = time_delay
-                                ddata(162) = timerise2
-                                ddata(163) = timeflat2
-                                ddata(164) = timefall2
-                                ! ECHO
+                        ddata(156) = fvxmax_ion
+                        ddata(157) = fvymax_ion
+                        ! ECHO
+                        ddata(158) = amp2
+                        ddata(159) = wavemode2
+                        ddata(160) = wavew2
+                        ddata(161) = time_delay
+                        ddata(162) = timerise2
+                        ddata(163) = timeflat2
+                        ddata(164) = timefall2
+                        ! ECHO
+                        !BVP
+                        data(165) = ant_amp
+                        data(166) = ant_omega
+                        data(167) = ant_trise
+                        data(168) = ant_tflat
+                        data(169) = ant_tfall
+
+                        data(170) = ant_amp
+                        data(171) = ant_omega
+                        data(172) = ant_trise
+                        data(173) = ant_tflat
+                        data(174) = ant_tfall
+                        !BVP
 
 				call PBCAST(ddata,lenml)
 				ntfield = ddata(1)
@@ -537,7 +552,20 @@
                                 timeflat2 = ddata(163)
                                 timefall2 = ddata(164)
                                 ! ECHO
+                        ! BVP
+                        ant_amp = data(165)
+                        ant_omega = data(166)
+                        ant_trise = data(167)
+                        ant_tflat = data(168)
+                        ant_tfall = data(169)
 
+                        ant_amp2 = data(170)
+                        ant_omega2 = data(171)
+                        ant_trise2 = data(172)
+                        ant_tflat2 = data(173)
+                        ant_tfall2 = data(174)
+                        ! BVP
+ 
 
       	end subroutine sendnml_jf
       	
