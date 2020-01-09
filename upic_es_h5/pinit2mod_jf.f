@@ -4,9 +4,8 @@
 !
 
       implicit none
-      private
       public :: ntfield
-      public :: pinput2_jf,sendnml_jf
+      public :: sendnml_jf
       public :: amp,wavemode,wavew,angle
 !
 ! FST -> BVP
@@ -263,7 +262,7 @@
       	&nt_vx_vy_speed, nvx_vy_speed, vx_vy_xrange, vx_vy_yrange, vx_vy_speed,nt_write_Ux_sumover_x,&
       	&nt_write_U_sumover_x_fromE,nt_write_grad_phi,ampere_k0,nt_write_S_sumover_x, nt_b_field,&
       	&turn_off_self_con,nt_through_wave,final_y,init_range,nt_dEdt,nt_write_kE_sumover_x, nt_kE,&
-      	&nt_write_jE_onlytracked_sumover_x,fvxmax_ion,fvymax_ion,&
+      	&nt_write_jE_onlytracked_sumover_x, fvxmax_ion,fvymax_ion,&
         &ant_amp,ant_omega,ant_trise,ant_tflat,ant_tfall,&
         &ant_amp2,ant_omega2,ant_trise2,ant_tflat2,ant_tfall2
       
