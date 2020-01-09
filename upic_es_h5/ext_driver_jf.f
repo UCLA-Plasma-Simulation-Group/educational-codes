@@ -1044,8 +1044,8 @@ module ext_driver_jf
         else
         	do j = 1,nypmx
 	        local_amp = ant_amp * cos(t*ant_omega) * time_envelope(t,ant_trise,ant_tflat,ant_tfall)
-	        fxye(1,nx/2,j,1) = fxye(1,nx/2,j,1) + local_amp
-	        fxye(1,nx/2+1,j,1) = fxye(1,nx/2+1,j,1) - local_amp
+	        fxye(1,(3*nx)/4,j,1) = fxye(1,(3*nx)/4,j,1) + local_amp
+	        fxye(1,(3*nx)/4+1,j,1) = fxye(1,(3*nx)/4+1,j,1) - local_amp
             enddo
         endif
         

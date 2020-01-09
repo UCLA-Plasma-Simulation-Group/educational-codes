@@ -19,7 +19,10 @@
 ! location x0. 
 !
 
+! BVP
       public :: ant_amp, ant_omega, ant_trise, ant_tflat, ant_tfall
+      public :: ant_amp2, ant_omega2, ant_trise2, ant_tflat2, ant_tfall2
+! BVP
 
 !
 ! FST -> Jan 2019
@@ -260,8 +263,8 @@
       	&nt_vx_vy_speed, nvx_vy_speed, vx_vy_xrange, vx_vy_yrange, vx_vy_speed,nt_write_Ux_sumover_x,&
       	&nt_write_U_sumover_x_fromE,nt_write_grad_phi,ampere_k0,nt_write_S_sumover_x, nt_b_field,&
       	&turn_off_self_con,nt_through_wave,final_y,init_range,nt_dEdt,nt_write_kE_sumover_x, nt_kE,&
-      	&nt_write_jE_onlytracked_sumover_x, fvxmax_ion,fvymax_ion,&
-        &ant_amp,ant_omega,ant_trise,ant_tflat,ant_tfall,
+      	&nt_write_jE_onlytracked_sumover_x,fvxmax_ion,fvymax_ion,&
+        &ant_amp,ant_omega,ant_trise,ant_tflat,ant_tfall,&
         &ant_amp2,ant_omega2,ant_trise2,ant_tflat2,ant_tfall2
       
       contains
@@ -405,17 +408,17 @@
                         ddata(164) = timefall2
                         ! ECHO
                         !BVP
-                        data(165) = ant_amp
-                        data(166) = ant_omega
-                        data(167) = ant_trise
-                        data(168) = ant_tflat
-                        data(169) = ant_tfall
+                        ddata(165) = ant_amp
+                        ddata(166) = ant_omega
+                        ddata(167) = ant_trise
+                        ddata(168) = ant_tflat
+                        ddata(169) = ant_tfall
 
-                        data(170) = ant_amp
-                        data(171) = ant_omega
-                        data(172) = ant_trise
-                        data(173) = ant_tflat
-                        data(174) = ant_tfall
+                        ddata(170) = ant_amp2
+                        ddata(171) = ant_omega2
+                        ddata(172) = ant_trise2
+                        ddata(173) = ant_tflat2
+                        ddata(174) = ant_tfall2
                         !BVP
 
 				call PBCAST(ddata,lenml)
@@ -553,17 +556,17 @@
                                 timefall2 = ddata(164)
                                 ! ECHO
                         ! BVP
-                        ant_amp = data(165)
-                        ant_omega = data(166)
-                        ant_trise = data(167)
-                        ant_tflat = data(168)
-                        ant_tfall = data(169)
+                                ant_amp = ddata(165)
+                                ant_omega = ddata(166)
+                                ant_trise = ddata(167)
+                                ant_tflat = ddata(168)
+                                ant_tfall = ddata(169)
 
-                        ant_amp2 = data(170)
-                        ant_omega2 = data(171)
-                        ant_trise2 = data(172)
-                        ant_tflat2 = data(173)
-                        ant_tfall2 = data(174)
+                                ant_amp2 = ddata(170)
+                                ant_omega2 = ddata(171)
+                                ant_trise2 = ddata(172)
+                                ant_tflat2 = ddata(173)
+                                ant_tfall2 = ddata(174)
                         ! BVP
  
 

@@ -22,19 +22,17 @@ LEGACY =
 MPIOBJS = nullLOG.o
 MPOBJS = MacMPxlf.o LnxMP.o
 
-HDF_DIR = /usr/local/
-H5_DIR = /usr/local/
-SZ_DIR = /usr/local/
+HDF_DIR = /osiris_libs/hdf5/
+H5_DIR = /osiris_libs/hdf5/
 
 INCPATH = -I$(H5_DIR)/include -L$(H5_DIR)/lib 
 #INCPATH = -I$(HDF_DIR)/include -I$(H5_DIR)/lib 
 
 # LIBS = -L$(HDF_DIR)/lib -lz -ljpeg -ldf -lmfhdf \
-#	-L$(H5_DIR)/lib -lhdf5 -lhdf5_fortran -lsz \
+#	-L$(H5_DIR)/lib -lhdf5 -lhdf5_fortran \
 #	-L$(SZ_DIR)/lib
-LIBS =  \
-	-L$(H5_DIR)/lib -lhdf5_fortran -lhdf5 \
-	-L$(SZ_DIR)/lib
+LIBS =  -L$(H5_DIR)/lib -lhdf5_fortran -lhdf5
+
 
 # Makefile Absoft compiler with MacOS X
 
