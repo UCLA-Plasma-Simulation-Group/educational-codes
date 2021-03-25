@@ -1168,73 +1168,81 @@
       	implicit none
       	integer :: label_code
       	character(len=*) :: title,xtitle,xunits,ytitle,yunits,ztitle,zunits
+	
+	character(len=1), parameter default_x = 'x'
+	character(len=1), parameter default_y = 'y'
+	character(len=11), parameter default_x_unit='[ $\lambda_D$ ]'
+	character(len=8), parameter default_v_unit ='[ $v_{th}$ ]'
+	character(len=31), parameter default_e_unit = '[ $m_e / q_e v_{th} \omega_p$ ]'
+	character(len=16), parameter default_j_unit = '[ $n_0 v_{th}$ ]'
+	
       	
       	select case(label_code)
       	
       	case(EX)
-      		title = 'Ex'
-      		xtitle = 'x'
-      		xunits = 'k!N!DD!N'
-      		ytitle = 'y'
-      		yunits = 'k!N!DD!N'
-      		ztitle = 'E!Dx!N'
-      		zunits = '!Ne/m!Mw!N!Dp!Nv!Dth!N'
+      		title = '$E_x$'
+      		xtitle = default_x
+      		xunits = default_x_unit
+      		ytitle = default_y
+      		yunits = default_x_unit
+      		ztitle = '$E_x$'
+      		zunits = default_e_unit
       	case(EY)
-      		title = 'Ey'
-      		xtitle = 'x'
-      		xunits = 'k!N!DD!N'
-      		ytitle = 'y'
-      		yunits = 'k!N!DD!N'
-      		ztitle = 'E!Dy!N'
-      		zunits = 'e/m!Mw!N!Dp!Nv!Dth!N'
+      		title = '$E_y$'
+      		xtitle = default_x
+      		xunits = default_x_unit
+      		ytitle = default_y
+      		yunits = default_x_unit
+      		ztitle = '$E_y$'
+      		zunits = default_e_unit
       	case(EZ)
-      		title = 'Ez'
-      		xtitle = 'x'
-      		xunits = 'k!N!DD!N'
-      		ytitle = 'y'
-      		yunits = 'k!N!DD!N'
-      		ztitle = 'E!Dz!N'
-      		zunits = 'e/m!Mw!N!Dp!Nv!Dth!N'
+      		title = '$E_z$'
+      		xtitle = default_x
+      		xunits = default_x_unit
+      		ytitle = default_y
+      		yunits = default_x_unit
+      		ztitle = '$E_z$'
+      		zunits = default_e_unit
       	case(BX)
-      		title = 'Bx'
-      		xtitle = 'x'
-      		xunits = 'k!N!DD!N'
-      		ytitle = 'y'
-      		yunits = 'k!N!DD!N'
-      		ztitle = 'B!Dx!N'
-      		zunits = '!Ne/m!Mw!N!Dp!Nv!Dth!N'
+      		title = '$B_x$'
+      		xtitle = default_x
+      		xunits = default_x_unit
+      		ytitle = default_y
+      		yunits = default_x_unit
+      		ztitle = '$B_x$'
+      		zunits = default_e_unit
       	case(BY)
-      		title = 'By'
-      		xtitle = 'x'
-      		xunits = 'k!N!DD!N'
-      		ytitle = 'y'
-      		yunits = 'k!N!DD!N'
-      		ztitle = 'B!Dy!N'
-      		zunits = 'e/m!Mw!N!Dp!Nv!Dth!N'
+      		title = '$B_y$'
+      		xtitle = default_x
+      		xunits = default_x_unit
+      		ytitle = default_y
+      		yunits = default_x_unit
+      		ztitle = '$B_y$'
+      		zunits = default_e_unit
       	case(BZ)
-      		title = 'Bz'
-      		xtitle = 'x'
-      		xunits = 'k!N!DD!N'
-      		ytitle = 'y'
-      		yunits = 'k!N!DD!N'
-      		ztitle = 'B!Dz!N'
-      		zunits = 'e/m!Mw!N!Dp!Nv!Dth!N'
+      		title = '$B_z$'
+      		xtitle = default_x
+      		xunits = default_x_unit
+      		ytitle = default_y
+      		yunits = default_x_unit
+      		ztitle = '$B_z$'
+      		zunits = default_e_unit
       	case(JX)
-      		title = 'jx'
-      		xtitle = 'x'
-      		xunits = 'k!N!DD!N'
-      		ytitle = 'y'
-      		yunits = 'k!N!DD!N'
-      		ztitle = 'j!Dx!N'
-      		zunits = 'env!Dth!N'
+		title = '$J_x$'
+      		xtitle = default_x
+      		xunits = default_x_unit
+      		ytitle = default_y
+      		yunits = default_x_unit
+      		ztitle = '$J_x$'
+      		zunits = default_j_unit
       	case(JY)
-      		title = 'jy'
-      		xtitle = 'x'
-      		xunits = 'k!N!DD!N'
-      		ytitle = 'y'
-      		yunits = 'k!N!DD!N'
-      		ztitle = 'j!Dy!N'
-      		zunits = 'env!Dth!N'
+      		title = '$J_y$'
+      		xtitle = default_x
+      		xunits = default_x_unit
+      		ytitle = default_y
+      		yunits = default_x_unit
+      		ztitle = '$J_y$'
+      		zunits = default_j_unit
       	case(VDOTEX)
       		title = 'vx Ex'
       		xtitle = 'x'
@@ -1382,9 +1390,9 @@
       	case(VXVY)
       		title = 'Phase Space vx vs vy'
       		xtitle = 'v!Dx!N'
-      		xunits = '1/v!Dth!N'
+      		xunits = default_v_unit
       		ytitle = 'v!Dy!N'
-      		yunits = '1/v!Dth!N'
+      		yunits = default_v_unit
       		ztitle = 'Number of Particles'
       		zunits = ' '
       	case(VDOTEX_FOLLOW_PART)
