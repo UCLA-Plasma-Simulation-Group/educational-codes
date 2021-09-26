@@ -1369,6 +1369,114 @@ c      endif
       end
 c23456789*123456789*123456789*123456789*123456789*123456789*123456789*12
 c-----------------------------------------------------------------------
+c-----------------------------------------------------------------------
+c23456789*123456789*123456789*123456789*123456789*123456789*123456789*12
+      subroutine PVDISTR2_HOLES(part,npp,nps,vtx,vty,vdx,vdy,npx,npy,idimp,npm
+     1ax,nblok,kstrt,nvp,xmax,vwidth,ierr)
+c for 2d code, this subroutine calculates initial particle velocities
+c with maxwellian velocity with drift for distributed data.
+c part(3,n,l) = velocity vx of particle n in partition l
+c part(4,n,l) = velocity vy of particle n in partition l
+c npp(l) = number of particles in partition l
+c nps(l) = starting address of particles in partition l
+c vtx/vty = thermal velocity of electrons in x/y direction
+c vdx/vdy = drift velocity of beam electrons in x/y direction
+c npx/npy = initial number of particles distributed in x/y direction
+c idimp = size of phase space = 4
+c npmax = maximum number of particles in each partition
+c nblok = number of particle partitions
+c kstrt = starting data block number
+c nvp = number of real or virtual processors
+c ierr = (0,1) = (no,yes) error condition exists
+c ranorm = gaussian random number with zero mean and unit variance
+c with spatial decomposition
+      implicit none
+      integer npx, npy, idimp, npmax, nblok, kstrt, nvp, ierr
+      real vtx, vty, vdx, vdy, xmax, vwidth
+      integer npp, nps
+      real part
+      dimension part(idimp,npmax,nblok)
+      dimension npp(nblok), nps(nblok)
+c local data
+!      integer ks, nppv, npxy, i, j, k, l, joff, imin, npt, iwork
+!      integer ks, i, j, k, l, joff, imin, npt, iwork, nppv
+      integer(KIND=8) npxy, nppvbig,ks, i, j, k, l, joff, imin, npt, iwo
+     1rk, nppv
+      real vxt, vyt, at1
+      double precision ranorm
+      double precision dsum1, dsum2
+      real sum2, work2
+      dimension sum2(2), work2(2)
+      ierr = 0
+c particle distribution constants
+      ks = kstrt - 2
+      nppvbig = npx
+      nppvbig = nppvbig * npy / nvp
+      nppv = nppvbig
+      nppv = min(nppv,npmax)
+      npxy = nppvbig*nvp
+c maxwellian velocity distribution
+      do 30 k = 1, npy
+      joff = npx*(k - 1)
+      do 20 j = 1, npx
+      i = j + joff
+c maxwellian velocity distribution
+      vxt = vtx*(randum()-0.5)*2.0
+      vyt = vty*(randum()-0.5)*2.0
+      do 10 l = 1, nblok
+      imin = nppv*(l + ks) + 1
+      if ((i.ge.imin).and.(i.lt.(imin+nppv))) then
+         npt = npp(l) + 1
+	 if((part(1,npt,l) .lt. xmax).and.(abs(vxt).lt. vwidth)) then
+	     do while(abs(vxt) .lt. vwidth)
+	         vxt = vtx*randum()-0.5)*2.0
+             end do
+         end if
+         part(3,npt,l) = vxt
+         part(4,npt,l) = vyt
+         npp(l) = npt
+      endif
+   10 continue
+   20 continue
+   30 continue
+      npxy = 0
+c add correct drift
+      sum2(1) = 0.
+      sum2(2) = 0.
+      do 50 l = 1, nblok
+      dsum1 = 0.0d0
+      dsum2 = 0.0d0
+      do 40 j = nps(l), npp(l)
+      npxy = npxy + 1
+      dsum1 = dsum1 + part(3,j,l)
+      dsum2 = dsum2 + part(4,j,l)
+   40 continue
+      sum2(1) = sum2(1) + dsum1
+      sum2(2) = sum2(2) + dsum2
+   50 continue
+      npxy = npx
+      npxy = npxy*npy
+      call PSUM(sum2,work2,2,1)
+      at1 = 1./float(npxy)
+      sum2(1) = at1*sum2(1) - vdx
+      sum2(2) = at1*sum2(2) - vdy
+      do 70 l = 1, nblok
+      do 60 j = nps(l), npp(l)
+      part(3,j,l) = part(3,j,l) - sum2(1)
+      part(4,j,l) = part(4,j,l) - sum2(2)
+   60 continue
+   70 continue
+c process errors
+c      nppvbig = npx
+c      nppvbig = nppvbig*npy
+c      if (npxy.ne.nppvbig) then
+c         ierr = npxy - nppvbig
+c         write (2,*) 'velocity distribution truncated, np = ', npxy
+c      endif
+      return
+      end
+c23456789*123456789*123456789*123456789*123456789*123456789*123456789*12
+c-----------------------------------------------------------------------
       subroutine  PVDISTR2_ARB(part,dist_func,npp,nps,vxmin,vxmax,vymin,
      1vymax,vdx,vdy,npx,npy,idimp,npmax,nblok,kstrt,nvp,ierr)
 c for 2d code, this subroutine calculates initial particle velocities

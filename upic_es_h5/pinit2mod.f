@@ -488,6 +488,9 @@
          module procedure ipvdistr2
          module procedure ipvdistr2_arb
          module procedure ipvdistrh2
+! HOLES - for upic-es 
+         module procedure ipvdistr2_hole
+! HOLES 
       end interface
 !
       interface vfdistr
@@ -796,12 +799,36 @@
      &nblok,kstrt,nvp,ierr)
          end subroutine ipvdistr2
 !
+! **********************************************************************************
+! ***************************  Holes   *********************************************
+! **********************************************************************************
+!
+         subroutine ipvdistr2_holes(part,npp,nps,vtx,vty,vdx,vdy,npx,npy,kstrt&
+     &,nvp,xmax,vwidth)
+! calculates initial particle velocities in 2d
+! with maxwellian velocity with drift
+         implicit none
+         integer :: npx, npy, kstrt, nvp
+         real :: vtx, vty, vdx, vdy, xmax, vwidth
+         real, dimension(:,:,:), pointer :: part
+         integer, dimension(:), pointer :: npp, nps
+! local data
+         integer :: idimp, npmax, nblok, ierr
+         idimp = size(part,1); npmax = size(part,2)
+         nblok = size(part,3)
+         call PVDISTR2_HOLES(part,npp,nps,vtx,vty,vdx,vdy,npx,npy,idimp,npmax,&
+     &nblok,kstrt,nvp,xmax,vwidth,ierr)
+         end subroutine ipvdistr2_holes
+!
+! **********************************************************************************
+! ***************************  Holes   *********************************************
+! **********************************************************************************
+!
 !23456789*123456789*123456789*123456789*123456789*123456789*123456789*123
          subroutine ipvdistr2_arb(part,dist_func,npp,nps,vxmin,vxmax,   &
      &vymin,vymax,vdx,vdy,npx,npy,kstrt,nvp)
      
-! calculates initial particle velocities in 2d
-! with maxwellian velocity with drift
+! calculates arbitrary distribution function in 2D
   
          implicit none
          
@@ -810,6 +837,11 @@
 	     real v
 	     end function dist_func
 	     end interface
+!
+! **********************************************************************************
+! **********************************************************************************
+! **********************************************************************************
+!
 	    
 	     
          integer :: npx, npy, kstrt, nvp
