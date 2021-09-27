@@ -2,15 +2,14 @@
 
 GOBJS = nullpgks2.o nullpgks1.o
 
-# Hoffman2 makefile
 
 MPIFC = mpiifort
 FC90 = mpiifort
 FC77 = mpiifort
-CC = mpicc
+CC = mpiicc
 
-OPTS90 = -r8  -O3 -qopenmp
-OPTS77 = -r8 -O3 -qopenmp
+OPTS90 =  -O -r8
+OPTS77 =  -O -r8
 #OPTS90 = -r8 -DFORTRANSINGLEUNDERSCORE -O3
 #OPTS77 = -r8 -DFORTRANSINGLEUNDERSCORE -O3
 
@@ -23,18 +22,17 @@ LEGACY =
 MPIOBJS = nullLOG.o
 MPOBJS = MacMPxlf.o LnxMP.o
 
+HDF_DIR =  $(HDF5_DIR)
 H5_DIR = $(HDF5_DIR)
-SZ_DIR = /u/local/apps/szip/current
 
 INCPATH = -I$(H5_DIR)/include -L$(H5_DIR)/lib
-#INCPATH = -I$(HDF_DIR)/include -I$(H5_DIR)/lib 
+#INCPATH = -I$(HDF_DIR)/include -I$(H5_DIR)/lib
 
 # LIBS = -L$(HDF_DIR)/lib -lz -ljpeg -ldf -lmfhdf \
-#	-L$(H5_DIR)/lib -lhdf5 -lhdf5_fortran -lsz \
+#	-L$(H5_DIR)/lib -lhdf5 -lhdf5_fortran \
 #	-L$(SZ_DIR)/lib
-LIBS = -ljpeg -lz \
-	-L$(H5_DIR)/lib -lsz -lhdf5_fortran -lhdf5 \
-	-L$(SZ_DIR)/lib
+LIBS =  -L$(H5_DIR)/lib -lhdf5_fortran -lhdf5
+
 
 # Makefile Absoft compiler with MacOS X
 
@@ -69,7 +67,7 @@ LIBS = -ljpeg -lz \
 #CCOPTS = -O
 #MOPTS = -s
 #MBOPTS = -s
-#LOPTS = -framework carbon 
+#LOPTS = -framework carbon
 #LEGACY = -dusty
 
 #MPIOBJS = MacMPIf77.o MacMPI_S.o
@@ -96,7 +94,7 @@ LIBS = -ljpeg -lz \
 #MPOBJS = MacMPxlf.o MacMP.o
 
 #LIBS = /System/Library/Frameworks/Carbon.framework/Carbon \
-#		-L/Users/uclapic/hdflib -lz -ljpeg -ldf -lmfhdf 
+#		-L/Users/uclapic/hdflib -lz -ljpeg -ldf -lmfhdf
 
 # Dawson Makefile mpif90 compiler with LAM MPI and MacOS X
 
@@ -245,61 +243,33 @@ ext_driver_jf.o p2mod_jf.o h5lib_beps.o hdf_write_jf.o par_track_new_jf.o \
 ppush2mod_jf.o ppush2lib_jf.o pfield2mod_jf.o
 
 MESOBJS = mprbpush2mod.o mppush2mod.o mpfft2mod.o mp2mod.o \
-mprbpush2lib.o mppush2lib.o mpfft2lib.o mp2lib.o 
+mprbpush2lib.o mppush2lib.o mpfft2lib.o mp2lib.o
 
 EMOBJS = pbpush2mod.o pbpush2lib.o
 
 MEMOBJS = mpbpush2mod.o mpbpush2lib.o
 
 DESOBJS = pdfield2mod.o pbfield2mod.o pcfield2mod.o pnfield2mod.o \
-pnpfield2mod.o pdfield2lib.o pbfield2lib.o pcfield2lib.o pnfield2lib.o 
+pnpfield2mod.o pdfield2lib.o pbfield2lib.o pcfield2lib.o pnfield2lib.o
 
 NPOBJS = nullMP.o
 
 # Linkage rules
 
-all : new_pbeps2_jf.out
+all : upic-es.out upic-es-arb.out upic-es-mag.out
 
-new_d0_mpbbeps2.out : new_d0_mpbbeps2.o $(ESOBJS) $(MESOBJS) $(EMOBJS) $(MEMOBJS) \
-                     $(DESOBJS) $(MPIOBJS) $(MPOBJS) $(GOBJS)
-	$(MPIFC) $(OPTS90) $(LOPTS) -o new_d0_mpbbeps2.out \
-        new_d0_mpbbeps2.o $(ESOBJS) $(MESOBJS) $(EMOBJS) $(MEMOBJS) $(DESOBJS) \
-        $(MPIOBJS) $(MPOBJS) $(GOBJS) $(LIBS)
 
-new_d0_pbbeps2.out : new_d0_pbbeps2.o $(ESOBJS) $(EMOBJS) $(DESOBJS) $(MPIOBJS) \
-                     $(NPOBJS) $(GOBJS)
-	$(MPIFC) $(OPTS90) $(LOPTS) -o new_d0_pbbeps2.out \
-	new_d0_pbbeps2.o $(ESOBJS) $(EMOBJS) $(DESOBJS) $(MPIOBJS) $(NPOBJS) \
-        $(GOBJS) $(LIBS)
+upic-es.out : upic-es.o $(ESOBJS) $(MPIOBJS) $(NPOBJS) $(GOBJS)
+	$(MPIFC) $(OPTS90) $(LOPTS) $(EMOBJS) mkdir_f_fxns.o -o upic-es.out \
+	upic-es.o $(ESOBJS) $(MPIOBJS) $(NPOBJS) $(GOBJS) $(LIBS) $(INCPATH)
 
-new_d0_mpbeps2.out : new_d0_mpbeps2.o $(ESOBJS) $(DESOBJS) $(MESOBJS) $(MPIOBJS) \
-                     $(MPOBJS) $(GOBJS)
-	$(MPIFC) $(OPTS90) $(LOPTS) -o new_d0_mpbeps2.out \
-	new_d0_mpbeps2.o $(ESOBJS) $(DESOBJS) $(MESOBJS) $(MPIOBJS) $(MPOBJS) \
-        $(GOBJS) $(LIBS)
+upic-es-arb.out : upic-es-arb.o $(ESOBJS) $(MPIOBJS) $(NPOBJS) $(GOBJS)
+	$(MPIFC) $(OPTS90) $(LOPTS) $(EMOBJS) mkdir_f_fxns.o -o upic-es-arb.out \
+	upic-es-arb.o $(ESOBJS) $(MPIOBJS) $(NPOBJS) $(GOBJS) $(LIBS) $(INCPATH)
 
-new_d0_pbeps2.out : new_d0_pbeps2.o $(ESOBJS) $(DESOBJS) $(MPIOBJS) $(NPOBJS) \
-                    $(GOBJS)
-	$(MPIFC) $(OPTS90) $(LOPTS) -o new_d0_pbeps2.out \
-	new_d0_pbeps2.o $(ESOBJS) $(DESOBJS) $(MPIOBJS) $(NPOBJS) $(GOBJS) $(LIBS)
-
-new_mpbbeps2.out : new_mpbbeps2.o $(ESOBJS) $(MESOBJS) $(EMOBJS) $(MEMOBJS) \
-                   $(MPIOBJS) $(MPOBJS) $(GOBJS)
-	$(MPIFC) $(OPTS90) $(LOPTS) -o new_mpbbeps2.out \
-        new_mpbbeps2.o $(ESOBJS) $(MESOBJS) $(EMOBJS) $(MEMOBJS) $(MPIOBJS) \
-        $(MPOBJS) $(GOBJS) $(LIBS)
-
-new_pbbeps2.out : new_pbbeps2.o $(ESOBJS) $(EMOBJS) $(MPIOBJS) $(NPOBJS) $(GOBJS)
-	$(MPIFC) $(OPTS90) $(OPTS90) $(LOPTS) -o new_pbbeps2.out \
-	new_pbbeps2.o $(ESOBJS) $(EMOBJS) $(MPIOBJS) $(NPOBJS) $(GOBJS) $(LIBS)
-
-new_mpbeps2.out : new_mpbeps2.o $(ESOBJS) $(MESOBJS) $(MPIOBJS) $(MPOBJS) $(GOBJS)
-	$(MPIFC) $(OPTS90) $(LOPTS) -o new_mpbeps2.out \
-        new_mpbeps2.o $(ESOBJS) $(MESOBJS) $(MPIOBJS) $(MPOBJS) $(GOBJS) $(LIBS)
-
-new_pbeps2_jf.out : new_pbeps2_jf.o $(ESOBJS) $(MPIOBJS) $(NPOBJS) $(GOBJS)
-	$(MPIFC) $(OPTS90) $(LOPTS) $(EMOBJS) mkdir_f_fxns.o -o new_pbeps2_jf.out \
-	new_pbeps2_jf.o $(ESOBJS) $(MPIOBJS) $(NPOBJS) $(GOBJS) $(LIBS) $(INCPATH)
+upic-es-mag.out : upic-es-mag.o $(ESOBJS) $(MPIOBJS) $(NPOBJS) $(GOBJS)
+	$(MPIFC) $(OPTS90) $(LOPTS) $(EMOBJS) mkdir_f_fxns.o -o upic-es-mag.out \
+	upic-es-mag.o $(ESOBJS) $(MPIOBJS) $(NPOBJS) $(GOBJS) $(LIBS) $(INCPATH)
 
 # Compilation rules
 
@@ -335,7 +305,7 @@ LnxMP.o : LnxMP.c
 
 LPProcessors.o : LPProcessors.c
 	$(CC) $(CCOPTS) -c LPProcessors.c
-	
+
 mkdir_f_fxns.o : mkdir_f_fxns.c
 	$(CC) $(CCOPTS) -c mkdir_f_fxns.c
 
@@ -426,23 +396,23 @@ globals.o : globals.f
 pinit2mod.o : pinit2mod.f globals.o
 	$(FC90) $(OPTS90) -c pinit2mod.f
 
-pinit2mod_jf.o : pinit2mod_jf.f
-	$(FC90) $(OPTS90) -c -free pinit2mod_jf.f
-	
-ampere_jf.o : ampere_jf.f
-	$(FC90) $(OPTS90) -c -free ampere_jf.f
-	
-ext_driver_jf.o : ext_driver_jf.f
-	$(FC90) $(OPTS90) -c -free ext_driver_jf.f
+pinit2mod_jf.o : pinit2mod_jf.f90
+	$(FC90) $(OPTS90) -c pinit2mod_jf.f90
+
+ampere_jf.o : ampere_jf.f90
+	$(FC90) $(OPTS90) -c ampere_jf.f90
+
+ext_driver_jf.o : ext_driver_jf.f90
+	$(FC90) $(OPTS90) -c ext_driver_jf.f90
 
 mppush2mod.o : mppush2mod.f ppush2mod.o mp0mod.o
 	$(FC90) $(OPTS90) -c mppush2mod.f
 
-ppush2mod.o : ppush2mod.f p0mod.o
-	$(FC90) $(OPTS90) -c ppush2mod.f
+ppush2mod.o : ppush2mod.f90 p0mod.o
+	$(FC90) $(OPTS90) -c ppush2mod.f90
 
-ppush2mod_jf.o : ppush2mod_jf.f p0mod.o
-	$(FC90) $(OPTS90) -c -free ppush2mod_jf.f
+ppush2mod_jf.o : ppush2mod_jf.f90 p0mod.o
+	$(FC90) $(OPTS90) -c ppush2mod_jf.f90
 
 mpbpush2mod.o : mpbpush2mod.f pbpush2mod.o mp0mod.o
 	$(FC90) $(OPTS90) -c mpbpush2mod.f
@@ -465,8 +435,8 @@ pfft2mod.o : pfft2mod.f p0mod.o
 pfield2mod.o : pfield2mod.f globals.o
 	$(FC90) $(OPTS90) -c pfield2mod.f
 
-pfield2mod_jf.o : pfield2mod_jf.f globals.o
-	$(FC90) $(OPTS90) -c -free pfield2mod_jf.f
+pfield2mod_jf.o : pfield2mod_jf.f90 globals.o
+	$(FC90) $(OPTS90) -c pfield2mod_jf.f90
 
 pdfield2mod.o : pdfield2mod.f globals.o
 	$(FC90) $(OPTS90) -c pdfield2mod.f
@@ -487,8 +457,8 @@ pnpfield2mod.o : pnpfield2mod.f pfield2mod.o pdfield2mod.o pbfield2mod.o \
 pdiag2mod.o : pdiag2mod.f pinit2mod.o
 	$(FC90) $(OPTS90) -c pdiag2mod.f
 
-diag_jf.o : diag_jf.f pinit2mod.o pinit2mod_jf.o p2mod_jf.o hdf_write_jf.o 
-	$(FC90) $(OPTS90) $(INCPATH) -c -free diag_jf.f
+diag_jf.o : diag_jf.f90 pinit2mod.o pinit2mod_jf.o p2mod_jf.o hdf_write_jf.o
+	$(FC90) $(OPTS90) $(INCPATH) -c diag_jf.f90
 
 p0mod.o : p0mod.f globals.o
 	$(FC90) $(OPTS90) -c p0mod.f
@@ -499,58 +469,41 @@ mp2mod.o : mp2mod.f p2mod.o mp0mod.o
 p2mod.o : p2mod.f p0mod.o
 	$(FC90) $(OPTS90) $(LEGACY) -c p2mod.f
 
-p2mod_jf.o : p2mod_jf.f p0mod.o p2mod.o par_track_new_jf.o
-	$(FC90) $(OPTS90) $(LEGACY) -c -free p2mod_jf.f
+p2mod_jf.o : p2mod_jf.f90 p0mod.o p2mod.o par_track_new_jf.o
+	$(FC90) $(OPTS90) $(LEGACY) -c  p2mod_jf.f90
 
 mp0mod.o : mp0mod.f
 	$(FC90) $(OPTS90) -c mp0mod.f
-	
-par_track_new_jf.o : par_track_new_jf.f pinit2mod_jf.o
-	$(FC90) $(OPTS90) $(INCPATH) -c -free par_track_new_jf.f
 
-h5lib_beps.o : h5lib_beps.f
-	$(FC90) $(OPTS90) $(INCPATH) -r8 -c -free h5lib_beps.f
+par_track_new_jf.o : par_track_new_jf.f90 pinit2mod_jf.o
+	$(FC90) $(OPTS90) $(INCPATH) -c par_track_new_jf.f90
 
-hdf_write_jf.o : hdf_write_jf.f h5lib_beps.o
-	$(FC90) $(OPTS90) $(INCPATH) -c -free hdf_write_jf.f
+h5lib_beps.o : h5lib_beps.f90
+	$(FC90) $(OPTS90) $(INCPATH) -c h5lib_beps.f90
 
-new_pbeps2_jf.o : new_pbeps2_jf.f ppush2mod.o prbpush2mod.o pfft2mod.o \
+hdf_write_jf.o : h5lib_beps.o hdf_write_jf.f90
+	$(FC90) $(OPTS90) $(INCPATH) -c  hdf_write_jf.f90
+
+upic-es.o : upic-es.f90 ppush2mod.o prbpush2mod.o pfft2mod.o \
                pbpush2mod.o pbpush2lib.o mkdir_f_fxns.o \
-               pfield2mod.o pdiag2mod.o p2mod.o mp0mod.o p2mod_jf.o \
-               diag_jf.o ampere_jf.o ext_driver_jf.o h5lib_beps.o hdf_write_jf.o \
+               pfield2mod.o pdiag2mod.o p2mod.o mp0mod.o h5lib_beps.o p2mod_jf.o \
+               diag_jf.o ampere_jf.o ext_driver_jf.o hdf_write_jf.o \
                par_track_new_jf.o ppush2mod_jf.o pfield2mod_jf.o
-	$(FC90) $(OPTS90) $(MOPTS) $(INCPATH) -c -free new_pbeps2_jf.f
+	$(FC77) $(OPTS77) $(MOPTS) $(INCPATH) -c upic-es.f90
 
-new_mpbeps2.o : new_mpbeps2.f mprbpush2mod.o mppush2mod.o mpfft2mod.o \
-                pfield2mod.o pdiag2mod.o mp2mod.o
-	$(FC90) $(OPTS90) $(MOPTS) -c new_mpbeps2.f
+upic-es-arb.o : upic-es-arb.f ppush2mod.o prbpush2mod.o pfft2mod.o \
+               pbpush2mod.o pbpush2lib.o mkdir_f_fxns.o \
+               pfield2mod.o pdiag2mod.o p2mod.o mp0mod.o h5lib_beps.o p2mod_jf.o \
+               diag_jf.o ampere_jf.o ext_driver_jf.o hdf_write_jf.o \
+               par_track_new_jf.o ppush2mod_jf.o pfield2mod_jf.o
+	$(FC90) $(OPTS90) $(MOPTS) $(INCPATH) -c -ffree-form upic-es-arb.f
 
-new_pbbeps2.o : new_pbbeps2.f prbpush2mod.o pbpush2mod.o \
-                ppush2mod.o pfft2mod.o pfield2mod.o \
-                pdiag2mod.o p2mod.o mp0mod.o
-	$(FC90) $(OPTS90) $(MOPTS) -c new_pbbeps2.f
-
-new_mpbbeps2.o : new_mpbbeps2.f mprbpush2mod.o mpbpush2mod.o \
-                 mppush2mod.o mpfft2mod.o pfield2mod.o \
-                 pdiag2mod.o mp2mod.o
-	$(FC90) $(OPTS90) $(MOPTS) -c new_mpbbeps2.f
-
-new_d0_pbeps2.o : new_d0_pbeps2.f ppush2mod.o prbpush2mod.o pfft2mod.o \
-                  pnpfield2mod.o pdiag2mod.o p2mod.o mp0mod.o
-	$(FC90) $(OPTS90) $(MOPTS) -c new_d0_pbeps2.f
-
-new_d0_mpbeps2.o : new_d0_mpbeps2.f mprbpush2mod.o mppush2mod.o mpfft2mod.o \
-                   pnpfield2mod.o pdiag2mod.o mp2mod.o
-	$(FC90) $(OPTS90) $(MOPTS) -c new_d0_mpbeps2.f
-
-new_d0_pbbeps2.o : new_d0_pbbeps2.f prbpush2mod.o pbpush2mod.o ppush2mod.o \
-                   pfft2mod.o pnpfield2mod.o pdiag2mod.o p2mod.o mp0mod.o
-	$(FC90) $(OPTS90) $(MBOPTS) -c new_d0_pbbeps2.f
-
-new_d0_mpbbeps2.o : new_d0_mpbbeps2.f mprbpush2mod.o mpbpush2mod.o \
-                    mppush2mod.o mpfft2mod.o pnpfield2mod.o pdiag2mod.o \
-                    mp2mod.o
-	$(FC90) $(OPTS90) $(MBOPTS) -c new_d0_mpbbeps2.f
+upic-es-mag.o : upic-es-mag.f ppush2mod.o prbpush2mod.o pfft2mod.o \
+               pbpush2mod.o pbpush2lib.o mkdir_f_fxns.o \
+               pfield2mod.o pdiag2mod.o p2mod.o mp0mod.o h5lib_beps.o p2mod_jf.o \
+               diag_jf.o ampere_jf.o ext_driver_jf.o hdf_write_jf.o \
+               par_track_new_jf.o ppush2mod_jf.o pfield2mod_jf.o
+	$(FC90) $(OPTS90) $(MOPTS) $(INCPATH) -c -ffree-form upic-es-mag.f
 
 clean :
 # Delete -i new_beps2.out {OBJS}

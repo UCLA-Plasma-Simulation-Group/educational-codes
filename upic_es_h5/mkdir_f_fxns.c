@@ -12,6 +12,8 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <stdio.h>
+#include <math.h>
 
 
 /* Remove a file */

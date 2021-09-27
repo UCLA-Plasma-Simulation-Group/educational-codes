@@ -398,14 +398,14 @@ globals.o : globals.f
 pinit2mod.o : pinit2mod.f globals.o
 	$(FC90) $(OPTS90) -c pinit2mod.f
 
-pinit2mod_jf.o : pinit2mod_jf.f
-	$(FC90) $(OPTS90) -c -ffree-form pinit2mod_jf.f
+pinit2mod_jf.o : pinit2mod_jf.f90
+	$(FC90) $(OPTS90) -c -ffree-form pinit2mod_jf.f90
 	
-ampere_jf.o : ampere_jf.f
-	$(FC90) $(OPTS90) -c -ffree-form ampere_jf.f
+ampere_jf.o : ampere_jf.f90
+	$(FC90) $(OPTS90) -c -ffree-form ampere_jf.f90
 	
-ext_driver_jf.o : ext_driver_jf.f
-	$(FC90) $(OPTS90) -c -ffree-form ext_driver_jf.f
+ext_driver_jf.o : ext_driver_jf.f90
+	$(FC90) $(OPTS90) -c -ffree-form ext_driver_jf.f90
 
 mppush2mod.o : mppush2mod.f ppush2mod.o mp0mod.o
 	$(FC90) $(OPTS90) -c mppush2mod.f
@@ -413,8 +413,8 @@ mppush2mod.o : mppush2mod.f ppush2mod.o mp0mod.o
 ppush2mod.o : ppush2mod.f p0mod.o
 	$(FC90) $(OPTS90) -c ppush2mod.f
 
-ppush2mod_jf.o : ppush2mod_jf.f p0mod.o
-	$(FC90) $(OPTS90) -c -ffree-form ppush2mod_jf.f
+ppush2mod_jf.o : ppush2mod_jf.f90 p0mod.o
+	$(FC90) $(OPTS90) -c -ffree-form ppush2mod_jf.f90
 
 mpbpush2mod.o : mpbpush2mod.f pbpush2mod.o mp0mod.o
 	$(FC90) $(OPTS90) -c mpbpush2mod.f
@@ -437,8 +437,8 @@ pfft2mod.o : pfft2mod.f p0mod.o
 pfield2mod.o : pfield2mod.f globals.o
 	$(FC90) $(OPTS90) -c pfield2mod.f
 
-pfield2mod_jf.o : pfield2mod_jf.f globals.o
-	$(FC90) $(OPTS90) -c -ffree-form pfield2mod_jf.f
+pfield2mod_jf.o : pfield2mod_jf.f90 globals.o
+	$(FC90) $(OPTS90) -c -ffree-form pfield2mod_jf.f90
 
 pdfield2mod.o : pdfield2mod.f globals.o
 	$(FC90) $(OPTS90) -c pdfield2mod.f
@@ -459,8 +459,8 @@ pnpfield2mod.o : pnpfield2mod.f pfield2mod.o pdfield2mod.o pbfield2mod.o \
 pdiag2mod.o : pdiag2mod.f pinit2mod.o
 	$(FC90) $(OPTS90) -c pdiag2mod.f
 
-diag_jf.o : diag_jf.f pinit2mod.o pinit2mod_jf.o p2mod_jf.o hdf_write_jf.o 
-	$(FC90) $(OPTS90) $(INCPATH) -c -ffree-form diag_jf.f
+diag_jf.o : diag_jf.f90 pinit2mod.o pinit2mod_jf.o p2mod_jf.o hdf_write_jf.o 
+	$(FC90) $(OPTS90) $(INCPATH) -c -ffree-form diag_jf.f90
 
 p0mod.o : p0mod.f globals.o
 	$(FC90) $(OPTS90) -c p0mod.f
@@ -477,21 +477,21 @@ p2mod_jf.o : p2mod_jf.f p0mod.o p2mod.o par_track_new_jf.o
 mp0mod.o : mp0mod.f
 	$(FC90) $(OPTS90) -c mp0mod.f
 	
-par_track_new_jf.o : par_track_new_jf.f pinit2mod_jf.o
-	$(FC90) $(OPTS90) $(INCPATH) -c -ffree-form par_track_new_jf.f
+par_track_new_jf.o : par_track_new_jf.f90 pinit2mod_jf.o
+	$(FC90) $(OPTS90) $(INCPATH) -c -ffree-form par_track_new_jf.f90
 
-h5lib_beps.o : h5lib_beps.f
-	$(FC90) $(OPTS90) $(INCPATH) -c -ffree-form h5lib_beps.f
+h5lib_beps.o : h5lib_beps.f90
+	$(FC90) $(OPTS90) $(INCPATH) -c -ffree-form h5lib_beps.f90
 
-hdf_write_jf.o : h5lib_beps.o hdf_write_jf.f
-	$(FC90) $(OPTS90) $(INCPATH) -c -ffree-form hdf_write_jf.f
+hdf_write_jf.o : h5lib_beps.o hdf_write_jf.f90
+	$(FC90) $(OPTS90) $(INCPATH) -c -ffree-form hdf_write_jf.f90
 
-upic-es.o : upic-es.f ppush2mod.o prbpush2mod.o pfft2mod.o \
+upic-es.o : upic-es.f90 ppush2mod.o prbpush2mod.o pfft2mod.o \
                pbpush2mod.o pbpush2lib.o mkdir_f_fxns.o \
                pfield2mod.o pdiag2mod.o p2mod.o mp0mod.o h5lib_beps.o p2mod_jf.o \
                diag_jf.o ampere_jf.o ext_driver_jf.o hdf_write_jf.o \
                par_track_new_jf.o ppush2mod_jf.o pfield2mod_jf.o
-	$(FC77) $(OPTS77) $(MOPTS) $(INCPATH) -c -ffree-form upic-es.f
+	$(FC77) $(OPTS77) $(MOPTS) $(INCPATH) -c -ffree-form upic-es.f90
 
 upic-es-arb.o : upic-es-arb.f ppush2mod.o prbpush2mod.o pfft2mod.o \
                pbpush2mod.o pbpush2lib.o mkdir_f_fxns.o \
