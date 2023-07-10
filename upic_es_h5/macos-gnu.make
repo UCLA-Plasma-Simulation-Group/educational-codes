@@ -8,8 +8,8 @@ FC90 = mpif90
 FC77 = mpif90
 CC = mpicc
 
-OPTS90 =  -O -fdefault-real-8
-OPTS77 =  -O -fdefault-real-8
+OPTS90 =  -O -fdefault-real-8  -fallow-argument-mismatch
+OPTS77 =  -O -fdefault-real-8  -fallow-argument-mismatch
 #OPTS90 = -r8 -DFORTRANSINGLEUNDERSCORE -O3
 #OPTS77 = -r8 -DFORTRANSINGLEUNDERSCORE -O3
 
@@ -29,11 +29,11 @@ SZ_DIR = /usr/local/
 INCPATH = -I$(H5_DIR)/include -L$(H5_DIR)/lib 
 #INCPATH = -I$(HDF_DIR)/include -I$(H5_DIR)/lib 
 
-# LIBS = -L$(HDF_DIR)/lib -lz -ljpeg -ldf -lmfhdf \
+# LIBS = -L$(HDF_DIR)/lib -lz -ldf -lmfhdf \
 #	-L$(H5_DIR)/lib -lhdf5 -lhdf5_fortran -lsz \
 #	-L$(SZ_DIR)/lib
-LIBS = -ljpeg -lz \
-	-L$(H5_DIR)/lib -lhdf5_fortran -lhdf5 -lsz \
+LIBS = -lz \
+	-L$(H5_DIR)/lib -lhdf5_fortran -lhdf5 \
 	-L$(SZ_DIR)/lib
 
 # Makefile Absoft compiler with MacOS X
@@ -96,7 +96,7 @@ LIBS = -ljpeg -lz \
 #MPOBJS = MacMPxlf.o MacMP.o
 
 #LIBS = /System/Library/Frameworks/Carbon.framework/Carbon \
-#		-L/Users/uclapic/hdflib -lz -ljpeg -ldf -lmfhdf 
+#		-L/Users/uclapic/hdflib -lz -ldf -lmfhdf 
 
 # Dawson Makefile mpif90 compiler with LAM MPI and MacOS X
 
@@ -483,8 +483,8 @@ par_track_new_jf.o : par_track_new_jf.f90 pinit2mod_jf.o
 h5lib_beps.o : h5lib_beps.f90
 	$(FC90) $(OPTS90) $(INCPATH) -c -ffree-form h5lib_beps.f90
 
-hdf_write_jf.o : h5lib_beps.o hdf_write_jf.f90
-	$(FC90) $(OPTS90) $(INCPATH) -c -ffree-form hdf_write_jf.f90
+hdf_write_jf.o : h5lib_beps.o hdf_write_jf.f
+	$(FC90) $(OPTS90) $(INCPATH) -c -ffree-form hdf_write_jf.f
 
 upic-es.o : upic-es.f90 ppush2mod.o prbpush2mod.o pfft2mod.o \
                pbpush2mod.o pbpush2lib.o mkdir_f_fxns.o \

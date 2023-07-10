@@ -489,7 +489,7 @@
          module procedure ipvdistr2_arb
          module procedure ipvdistrh2
 ! HOLES - for upic-es 
-         module procedure ipvdistr2_hole
+         ! module procedure ipvdistr2_hole
 ! HOLES 
       end interface
 !
