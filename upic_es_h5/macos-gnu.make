@@ -5,11 +5,11 @@ GOBJS = nullpgks2.o nullpgks1.o
 
 MPIFC = mpif90
 FC90 = mpif90
-FC77 = mpif90
+FC77 = mpif77
 CC = mpicc
 
-OPTS90 =  -O -fdefault-real-8
-OPTS77 =  -O -fdefault-real-8
+OPTS90 =  -O -fdefault-real-8 -fallow-argument-mismatch 
+OPTS77 =  -O -fdefault-real-8 -fallow-argument-mismatch -std=legacy
 #OPTS90 = -r8 -DFORTRANSINGLEUNDERSCORE -O3
 #OPTS77 = -r8 -DFORTRANSINGLEUNDERSCORE -O3
 
@@ -262,7 +262,7 @@ all : upic-es.out upic-es-arb.out upic-es-mag.out
 
 
 upic-es.out : upic-es.o $(ESOBJS) $(MPIOBJS) $(NPOBJS) $(GOBJS)
-	$(MPIFC) $(OPTS90) $(LOPTS) $(EMOBJS) mkdir_f_fxns.o -o upic-es.out \
+	$(FC77) $(LOPTS) $(EMOBJS) mkdir_f_fxns.o -o upic-es.out \
 	upic-es.o $(ESOBJS) $(MPIOBJS) $(NPOBJS) $(GOBJS) $(LIBS) $(INCPATH)
 
 upic-es-arb.out : upic-es-arb.o $(ESOBJS) $(MPIOBJS) $(NPOBJS) $(GOBJS)
@@ -483,8 +483,8 @@ par_track_new_jf.o : par_track_new_jf.f90 pinit2mod_jf.o
 h5lib_beps.o : h5lib_beps.f90
 	$(FC90) $(OPTS90) $(INCPATH) -c -ffree-form h5lib_beps.f90
 
-hdf_write_jf.o : h5lib_beps.o hdf_write_jf.f90
-	$(FC90) $(OPTS90) $(INCPATH) -c -ffree-form hdf_write_jf.f90
+hdf_write_jf.o : h5lib_beps.o hdf_write_jf.f
+	$(FC90) $(OPTS90) $(INCPATH) -c -ffree-form hdf_write_jf.f
 
 upic-es.o : upic-es.f90 ppush2mod.o prbpush2mod.o pfft2mod.o \
                pbpush2mod.o pbpush2lib.o mkdir_f_fxns.o \

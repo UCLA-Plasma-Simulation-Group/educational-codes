@@ -1268,8 +1268,8 @@ c local data
       end
 c-----------------------------------------------------------------------
 c23456789*123456789*123456789*123456789*123456789*123456789*123456789*12
-      subroutine PVDISTR2(part,npp,nps,vtx,vty,vdx,vdy,npx,npy,idimp,npm
-     1ax,nblok,kstrt,nvp,ierr)
+      subroutine PVDISTR2(part,npp,nps,vtx,vty,vdx,vdy,npx,npy,idimp,
+     1npmax,nblok,kstrt,nvp,ierr)
 c for 2d code, this subroutine calculates initial particle velocities
 c with maxwellian velocity with drift for distributed data.
 c part(3,n,l) = velocity vx of particle n in partition l
@@ -1371,8 +1371,8 @@ c23456789*123456789*123456789*123456789*123456789*123456789*123456789*12
 c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
 c23456789*123456789*123456789*123456789*123456789*123456789*123456789*12
-      subroutine PVDISTR2_HOLES(part,npp,nps,vtx,vty,vdx,vdy,npx,npy,idimp,npm
-     1ax,nblok,kstrt,nvp,xmax,vwidth,ierr)
+      subroutine PVDISTR2_HOLES(part,npp,nps,vtx,vty,vdx,vdy,npx,npy,
+     1idimp,npmax,nblok,kstrt,nvp,xmax,vwidth,ierr)
 c for 2d code, this subroutine calculates initial particle velocities
 c with maxwellian velocity with drift for distributed data.
 c part(3,n,l) = velocity vx of particle n in partition l
@@ -1397,6 +1397,7 @@ c with spatial decomposition
       real part
       dimension part(idimp,npmax,nblok)
       dimension npp(nblok), nps(nblok)
+      double precision randum
 c local data
 !      integer ks, nppv, npxy, i, j, k, l, joff, imin, npt, iwork
 !      integer ks, i, j, k, l, joff, imin, npt, iwork, nppv
@@ -1429,7 +1430,7 @@ c maxwellian velocity distribution
          npt = npp(l) + 1
 	 if((part(1,npt,l) .lt. xmax).and.(abs(vxt).lt. vwidth)) then
 	     do while(abs(vxt) .lt. vwidth)
-	         vxt = vtx*randum()-0.5)*2.0
+	         vxt = vtx*(randum()-0.5)*2.0
              end do
          end if
          part(3,npt,l) = vxt
