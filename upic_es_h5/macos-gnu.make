@@ -10,6 +10,7 @@ CC = mpicc
 
 OPTS90 =  -O -fdefault-real-8 -fallow-argument-mismatch 
 OPTS77 =  -O -fdefault-real-8 -fallow-argument-mismatch -std=legacy
+
 #OPTS90 = -r8 -DFORTRANSINGLEUNDERSCORE -O3
 #OPTS77 = -r8 -DFORTRANSINGLEUNDERSCORE -O3
 
@@ -29,11 +30,11 @@ SZ_DIR = /usr/local/
 INCPATH = -I$(H5_DIR)/include -L$(H5_DIR)/lib 
 #INCPATH = -I$(HDF_DIR)/include -I$(H5_DIR)/lib 
 
-# LIBS = -L$(HDF_DIR)/lib -lz -ljpeg -ldf -lmfhdf \
+# LIBS = -L$(HDF_DIR)/lib -lz -ldf -lmfhdf \
 #	-L$(H5_DIR)/lib -lhdf5 -lhdf5_fortran -lsz \
 #	-L$(SZ_DIR)/lib
-LIBS = -ljpeg -lz \
-	-L$(H5_DIR)/lib -lhdf5_fortran -lhdf5 -lsz \
+LIBS = -lz \
+	-L$(H5_DIR)/lib -lhdf5_fortran -lhdf5 \
 	-L$(SZ_DIR)/lib
 
 # Makefile Absoft compiler with MacOS X
@@ -96,7 +97,7 @@ LIBS = -ljpeg -lz \
 #MPOBJS = MacMPxlf.o MacMP.o
 
 #LIBS = /System/Library/Frameworks/Carbon.framework/Carbon \
-#		-L/Users/uclapic/hdflib -lz -ljpeg -ldf -lmfhdf 
+#		-L/Users/uclapic/hdflib -lz -ldf -lmfhdf 
 
 # Dawson Makefile mpif90 compiler with LAM MPI and MacOS X
 

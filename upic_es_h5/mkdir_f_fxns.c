@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdlib.h>
 
 
 /* Remove a file */
@@ -91,7 +92,7 @@ void getenv_f_(const char *name, char *value, int *ierr)
 
 void isinf_f_( double *x, int *res )
 {
-  *res = ! finite( *x);
+  *res = ! isfinite( *x);
 }
 
 /* check if floating point is nan */
