@@ -486,7 +486,7 @@
 !
       interface vdistr
          module procedure ipvdistr2
-         module procedure ipvdistr2_arb
+         ! module procedure ipvdistr2_arb
          module procedure ipvdistrh2
 ! HOLES - for upic-es 
          ! module procedure ipvdistr2_hole
