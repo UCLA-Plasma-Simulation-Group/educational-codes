@@ -500,12 +500,12 @@ upic-es.o : upic-es.f90 ppush2mod.o prbpush2mod.o pfft2mod.o \
                par_track_new_jf.o ppush2mod_jf.o pfield2mod_jf.o
 	$(FC77) $(OPTS77) $(MOPTS) $(INCPATH) -c -ffree-form upic-es.f90
 
-upic-es-arb.o : upic-es-arb.f ppush2mod.o prbpush2mod.o pfft2mod.o \
-               pbpush2mod.o pbpush2lib.o mkdir_f_fxns.o \
-               pfield2mod.o pdiag2mod.o p2mod.o mp0mod.o h5lib_beps.o p2mod_jf.o \
-               diag_jf.o ampere_jf.o ext_driver_jf.o hdf_write_jf.o \
-               par_track_new_jf.o ppush2mod_jf.o pfield2mod_jf.o
-	$(FC90) $(OPTS90) $(MOPTS) $(INCPATH) -c -ffree-form upic-es-arb.f
+# upic-es-arb.o : upic-es-arb.f ppush2mod.o prbpush2mod.o pfft2mod.o \
+#                pbpush2mod.o pbpush2lib.o mkdir_f_fxns.o \
+#                pfield2mod.o pdiag2mod.o p2mod.o mp0mod.o h5lib_beps.o p2mod_jf.o \
+#                diag_jf.o ampere_jf.o ext_driver_jf.o hdf_write_jf.o \
+#                par_track_new_jf.o ppush2mod_jf.o pfield2mod_jf.o
+# 	$(FC90) $(OPTS90) $(MOPTS) $(INCPATH) -c -ffree-form upic-es-arb.f
 
 upic-es-mag.o : upic-es-mag.f ppush2mod.o prbpush2mod.o pfft2mod.o \
                pbpush2mod.o pbpush2lib.o mkdir_f_fxns.o \
