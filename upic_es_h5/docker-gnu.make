@@ -265,7 +265,7 @@ NPOBJS = nullMP.o
 
 # Linkage rules
 
-all : upic-es.out upic-es-arb.out upic-es-mag.out
+all : upic-es.out upic-es-mag.out
 
 
 upic-es.out : upic-es.o $(ESOBJS) $(MPIOBJS) $(NPOBJS) $(GOBJS)
